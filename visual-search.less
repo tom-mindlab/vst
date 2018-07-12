@@ -1,0 +1,50 @@
+@import "~theme";
+.visual-search {
+
+	.main {
+
+		.side-panels;
+
+		position: absolute;
+
+		.instruction {
+			width: 96-2*@panel-width;
+			left: 2+@panel-width;
+			top:0;
+			text-align: center;
+			margin-top: 1em;
+			font-size: 2em;
+			
+			color: @primary;
+		}
+
+		.stimuli {
+			position: absolute;
+			
+			width : 96-2*@panel-width;
+			left : 2+@panel-width;
+
+			height : 70%;
+			top : 15%;
+
+			z-index : 5;
+			outline : none;
+			cursor: crosshair;
+		}
+
+		.click-overlay {
+			.stimuli;
+
+			z-index:999;		
+		}
+
+
+	}
+
+	.introduction {
+		.pause-screen;
+	}
+
+
+
+}

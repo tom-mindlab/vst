@@ -1,0 +1,129 @@
+{
+	"name" : "visual search",
+	"description" : "User searches within an image",
+	"version" : "0",
+	"start" : "../../main.html",
+	"data" : null,
+	"configuration" : {
+		"type" : "object",
+		"properties" : {
+			"wombat_component" : {
+				"enum" : ["visual search"],
+				"default" : "visual search"
+			},
+			"repeats" : {
+				"type" : "number",
+				"default" : 1
+			},
+			"sample" : {
+				"type" : "number",
+				"default" : -1
+			}, 
+			"timer_duration" : {
+				"type" : "number",
+				"default" : 20000
+			},
+			"randomise" : {
+				"type" : "boolean",
+				"default" : false
+			},
+			"delay" : {
+				"type" : "number",
+				"default" : 2000
+			},
+			"stimuli" : {
+				"type" : "array",
+				"items" : {
+					"type" : "object",
+					"properties" : {
+						"name" : {
+							"type" : "string",
+							"required" : "true"
+						},
+						"instruction" : {
+							"type" : "string",
+							"required" : true
+						},
+						"path" : {
+							"type" : "string",
+							"required" : "true"
+						},
+						"targets" : {
+							"type" : "array",
+							"items" : {
+								"type" :"object",
+								"properties" : {
+									"name" : {
+										"type" : "string",
+										"required" : true
+									},
+									"rectangle" : {
+										"type" : "object",
+										"properties" : {
+											"x1" : {
+												"type" : "number",
+												"required" : true
+											},
+											"x2" : {
+												"type" : "number",
+												"required" : true
+											},
+											"y1" : {
+												"type" : "number",
+												"required" : true
+											},
+											"y2" : {
+												"type" : "number",
+												"required" : true
+											}
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	},
+
+	"default_configuration" : {
+		"repeats" : 2,
+		"timer_duration" : 20000,
+		"randomise" : true,
+		"sample" : -1,
+		"delay" : 3000,
+		"stimuli" : [
+		{
+			"name" : "A landscape",
+			"instruction" : "Please click or tap on the bridge or the folly",
+			"path" : "https://upload.wikimedia.org/wikipedia/commons/e/e4/Stourhead_garden.jpg",
+			"targets" : [
+				{
+					"name" : "bridge",
+					"rectangle" : {
+						"x1" : 215,
+						"x2" : 1083,
+						"y1" : 447,
+						"y2" : 612
+					}
+				},
+				{
+					"name" : "folly",
+					"rectangle" : {
+						"x1" : 1163,
+						"x2" : 1294,
+						"y1" : 274,
+						"y2" : 384
+					}
+				}
+			]
+		}
+		],
+		"language_options" : {
+			"title" : "Find and click",
+			"pause_message" : "Have a break",
+			"pause_continue_button" : "Lets get on with it!"
+		}
+	}
+}

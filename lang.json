@@ -1,0 +1,21 @@
+{
+	"default" : {
+		"continue" : "NO TRANSLATION",
+		"title" : "NO TRANSLATION",
+		"pause_message" : "NO TRANSLATION",
+		"pause_continue_button" : "NO TRANSLATION",
+		"intro_message" : "NO TRANSLATION",
+		"intro_continue_button" : "NO TRANSLATION",
+		"intro_continue_loading_button" : "NO TRANSLATION"
+	},
+
+	"en" : {
+		"continue" : "continue",
+		"title" : "Visual Comment test",
+		"pauseMessage" : "Test paused",
+		"pauseContinueButton" : "Continue",
+		"intro_message" : "welcome to the Commenting test",
+		"intro_continue_button" : "Start",
+		"intro_continue_loading_button" : "Loading images, please wait."
+	}
+}

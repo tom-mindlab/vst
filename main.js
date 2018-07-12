@@ -29,7 +29,6 @@ async function $generateDOM(shelf_rack) {
 }
 
 async function asElement(item) {
-	console.log('present');
 	let $DOM = $('<div></div>');
 	$DOM.css('background-image', 'url(' + item.URI + ')');
 	$DOM.css('background-repeat', 'no-repeat');
@@ -43,8 +42,6 @@ async function asElement(item) {
 	} else {
 		throw new TypeError('Expected shelf rack item');
 	}
-
-	console.log($DOM);
 }
 
 function $generateDOMTree(parent) {
@@ -70,12 +67,27 @@ async function showScreen($DOM, replacements) {
 	});
 }
 
+async function blah(items) {
+	let $DOM;
+	for (let item of items) {
+		$DOM = await asElement(item);
+		if (Array.isArray(item.items)) {
+			// console.log('push...');
+			// console.group('>');
+			// console.log(item.items);
+			// console.groupEnd();
+			$DOM.append(await blah(item.items));
+		}
+	}
+	return $DOM;
+}
+
 async function main($DOM, configuration) {
 	let rack = new ShelfRack(configuration.layout, configuration.item_classes);
-	for (let item of rack.items) {
-		console.log('i: ' + item);
-		asElement(item);
-	}
+	console.group();
+	console.warn(rack.items);
+	console.groupEnd();
+	console.log(await blah(rack.items));
 }
 
 export default async function(configuration, callback) {

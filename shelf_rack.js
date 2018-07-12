@@ -1,13 +1,14 @@
 class Item {
-	constructor(name, URI) {
+	constructor(name, URI, percent_width) {
 		this.name = name;
 		this.URI = URI;
+		this.percent_width = percent_width;
 	}
 }
 
 export class Product extends Item {
 	constructor(json_product_obj) {
-		super(json_product_obj.name, json_product_obj.URI);
+		super(json_product_obj.name, json_product_obj.URI, json_product_obj.percent_width);
 	}
 }
 
@@ -24,9 +25,8 @@ const OVERFLOW_CALLBACKS = {
 
 export class Shelf extends Item {
 	constructor(json_shelf_obj, overflow_callback) {
-		super(json_shelf_obj.name, json_shelf_obj.URI);
+		super(json_shelf_obj.name, json_shelf_obj.URI, json_shelf_obj.percent_width);
 		this.overflow_callback = overflow_callback;
-		this.percentage_width = json_shelf_obj.percent_width;
 		this.items = [];
 	}
 
@@ -71,6 +71,8 @@ function parseItems(json_obj, item_arr, item_types_arr) {
 		}
 	} else {
 		json_obj = Object.assign(json_obj, item_types_arr.find(item => item.name === json_obj.name));
+		console.log('hence:');
+		console.log(json_obj);
 
 		if (json_obj.type === 'shelf') {
 			item_arr.push(new Shelf(json_obj, OVERFLOW_CALLBACKS.FAIL));

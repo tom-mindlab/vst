@@ -1,21 +1,41 @@
 {
-	"default" : {
-		"continue" : "NO TRANSLATION",
-		"title" : "NO TRANSLATION",
-		"pause_message" : "NO TRANSLATION",
-		"pause_continue_button" : "NO TRANSLATION",
-		"intro_message" : "NO TRANSLATION",
-		"intro_continue_button" : "NO TRANSLATION",
-		"intro_continue_loading_button" : "NO TRANSLATION"
+	"default": {
+		"continue": "NO TRANSLATION",
+		"title": "NO TRANSLATION",
+		"screens": {
+			"pause": {
+				"message": "NO TRANSLATION",
+				"continue_button": "NO TRANSLATION"
+			},
+			"intro": {
+				"message": "NO TRANSLATION",
+				"continue_button": "NO TRANSLATION",
+				"continue_loading_button": "NO TRANSLATION"
+			},
+			"main": {
+				"message": "NO TRANSLATION",
+				"continue_button": "NO TRANSLATION"
+			}
+		}
 	},
 
-	"en" : {
-		"continue" : "continue",
-		"title" : "Visual Comment test",
-		"pauseMessage" : "Test paused",
-		"pauseContinueButton" : "Continue",
-		"intro_message" : "welcome to the Commenting test",
-		"intro_continue_button" : "Start",
-		"intro_continue_loading_button" : "Loading images, please wait."
+	"en": {
+		"continue": "continue",
+		"title": "Visual Comment test",
+		"screens": {
+			"pause": {
+				"message": "Test paused",
+				"continue_button": "Continue"
+			},
+			"intro": {
+				"message": "welcome to the Commenting test",
+				"continue_button": "Start",
+				"continue_loading_button": "Loading images, please wait."
+			},
+			"main": {
+				"message": "blah",
+				"continue_button": "continue"
+			}
+		}
 	}
 }

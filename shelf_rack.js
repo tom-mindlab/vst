@@ -2,14 +2,10 @@ class Item {
 	constructor(name, URI) {
 		this.name = name;
 		this.URI = URI;
-		this.$DOM = $('<div class="rack_item"><</div>');
-		this.$DOM.css('background', 'url("' + this.URI + '") no-repeat center');
-		this.$DOM.css('background-size', 'contain');
-		//this.$DOM.append('<img src="' + this.URI + '" />');
 	}
 }
 
-class Product extends Item {
+export class Product extends Item {
 	constructor(json_product_obj) {
 		super(json_product_obj.name, json_product_obj.URI);
 	}
@@ -26,7 +22,7 @@ const OVERFLOW_CALLBACKS = {
 	FAIL: function() {}
 };
 
-class Shelf extends Item {
+export class Shelf extends Item {
 	constructor(json_shelf_obj, overflow_callback) {
 		super(json_shelf_obj.name, json_shelf_obj.URI);
 		this.overflow_callback = overflow_callback;
@@ -63,14 +59,6 @@ export class ShelfRack {
 			}
 		}
 	}
-
-	$generateDOM() {
-		let $DOM = $('<div class="rack"></div>');
-		for (let index in this.items) {
-			$DOM.append($generateDOMTree(this.items[index]));
-		}
-		return $DOM;
-	}
 }
 
 function parseItems(json_obj, item_arr, item_types_arr) {
@@ -82,7 +70,7 @@ function parseItems(json_obj, item_arr, item_types_arr) {
 			item_arr = parseItems(json_obj[i], item_arr, item_types_arr);
 		}
 	} else {
-		json_obj.URI = item_types_arr.find(item => item.name === json_obj.name).URI;
+		json_obj = Object.assign(json_obj, item_types_arr.find(item => item.name === json_obj.name));
 
 		if (json_obj.type === 'shelf') {
 			item_arr.push(new Shelf(json_obj, OVERFLOW_CALLBACKS.FAIL));
@@ -99,6 +87,14 @@ function parseItems(json_obj, item_arr, item_types_arr) {
 		}
 	}
 	return item_arr;
+}
+
+async function getImageProps(URL) {
+	return await new Promise(resolve => {
+		let img = new Image();
+		img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+		img.src = URL;
+	});
 }
 
 function $generateDOMTree(parent) {

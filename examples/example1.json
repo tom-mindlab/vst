@@ -53,6 +53,24 @@
 					"percent_width": 50
 				}
 			]
+		},
+		{
+			"name": "supermarket",
+			"percent_width": 100,
+			"items": [
+				{
+					"name": "pinnacle",
+					"percent_width": 50
+				},
+				{
+					"name": "pinnacle",
+					"percent_width": 50
+				},
+				{
+					"name": "pinnacle",
+					"percent_width": 50
+				}
+			]
 		}
 	],
 	"language_options": {

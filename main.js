@@ -122,7 +122,23 @@ async function blah(item) {
 	return $DOM;
 }
 
-function go() {
+async function main($DOM, configuration) {
+	let rack = new ShelfRack(configuration.layout, configuration.item_classes);
+	let $rack_DOM = $('<div class="rack">');
+	//$rack_DOM.css('width', '100%');
+	//$rack_DOM.css('height', '100%');
+	// $rack_DOM.css('display', 'flex');
+	// $rack_DOM.css('flex-direction', 'column');
+	for (let item of rack.items) {
+		$rack_DOM.append(await blah(item));
+	}
+
+	$DOM.find('.stimuli').append($rack_DOM);
+
+	console.log($DOM);
+
+	$DOM.fadeIn(200);
+
 	let product_scale = 0.85;
 
 	console.log(100 / $('.rack').children().length);
@@ -166,26 +182,6 @@ function go() {
 		);
 		$(this).css('background-position', 'center ' + 100 - product_scale * 100 + '%');
 	});
-}
-
-async function main($DOM, configuration) {
-	let rack = new ShelfRack(configuration.layout, configuration.item_classes);
-	let $rack_DOM = $('<div class="rack">');
-	//$rack_DOM.css('width', '100%');
-	//$rack_DOM.css('height', '100%');
-	// $rack_DOM.css('display', 'flex');
-	// $rack_DOM.css('flex-direction', 'column');
-	for (let item of rack.items) {
-		$rack_DOM.append(await blah(item));
-	}
-
-	$DOM.find('.stimuli').append($rack_DOM);
-
-	console.log($DOM);
-
-	$DOM.fadeIn(200);
-
-	go();
 
 	await onClick($DOM);
 	return await $DOM.fadeOut(200);

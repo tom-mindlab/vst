@@ -71,8 +71,6 @@ function parseItems(json_obj, item_arr, item_types_arr) {
 		}
 	} else {
 		json_obj = Object.assign(json_obj, item_types_arr.find(item => item.name === json_obj.name));
-		console.log('hence:');
-		console.log(json_obj);
 
 		if (json_obj.type === 'shelf') {
 			item_arr.push(new Shelf(json_obj, OVERFLOW_CALLBACKS.FAIL));

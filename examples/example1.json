@@ -8,17 +8,17 @@
 		{
 			"name": "supermarket",
 			"type": "shelf",
-			"URI": "https://i.imgur.com/T2yt2J1.png"
+			"URI": "https://i.imgur.com/Pi8qnDh.png"
 		},
 		{
-			"name": "carlsberg",
+			"name": "absolut",
 			"type": "product",
-			"URI": "https://products3.imgix.drizly.com/ci-carlsberg-3070d1cc4733354d.jpeg?auto=format%2Ccompress&fm=jpeg&q=20"
+			"URI": "https://i.imgur.com/wtNbh87.png"
 		},
 		{
-			"name": "hh13",
+			"name": "pinnacle",
 			"type": "product",
-			"URI": "https://img.tesco.com/Groceries/pi/302/5000213020302/IDShot_540x540.jpg"
+			"URI": "https://i.imgur.com/3nmJ5OP.png"
 		}
 	],
 	"layout": [
@@ -27,11 +27,29 @@
 			"percent_width": 100,
 			"items": [
 				{
-					"name": "carlsberg",
+					"name": "absolut",
 					"percent_width": 50
 				},
 				{
-					"name": "hh13",
+					"name": "absolut",
+					"percent_width": 50
+				},
+				{
+					"name": "absolut",
+					"percent_width": 50
+				},
+				{
+					"name": "pinnacle",
+					"percent_width": 50
+				}
+			]
+		},
+		{
+			"name": "supermarket",
+			"percent_width": 100,
+			"items": [
+				{
+					"name": "pinnacle",
 					"percent_width": 50
 				}
 			]

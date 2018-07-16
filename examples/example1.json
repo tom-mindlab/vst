@@ -21,10 +21,12 @@
 			"URI": "https://i.imgur.com/3nmJ5OP.png"
 		}
 	],
+	"product_scale": 0.85,
 	"layout": [
 		{
 			"name": "supermarket",
 			"percent_width": 100,
+			"pack_from": "row",
 			"items": [
 				{
 					"name": "absolut",
@@ -47,6 +49,7 @@
 		{
 			"name": "supermarket",
 			"percent_width": 100,
+			"pack_from": "row",
 			"items": [
 				{
 					"name": "pinnacle",
@@ -57,6 +60,7 @@
 		{
 			"name": "supermarket",
 			"percent_width": 100,
+			"pack_from": "row-reverse",
 			"items": [
 				{
 					"name": "pinnacle",
@@ -67,7 +71,7 @@
 					"percent_width": 50
 				},
 				{
-					"name": "pinnacle",
+					"name": "absolut",
 					"percent_width": 50
 				}
 			]

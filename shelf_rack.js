@@ -27,6 +27,7 @@ export class Shelf extends Item {
 	constructor(json_shelf_obj, overflow_callback) {
 		super(json_shelf_obj.name, json_shelf_obj.URI, json_shelf_obj.percent_width);
 		this.overflow_callback = overflow_callback;
+		this.pack_from = json_shelf_obj.pack_from;
 		this.items = [];
 	}
 

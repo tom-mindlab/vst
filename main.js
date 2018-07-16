@@ -11,7 +11,7 @@ function onClick($element) {
 	});
 }
 
-async function asElement(item) {
+async function $asElement(item) {
 	let $DOM = $('<div></div>');
 	$DOM.css('background-image', 'url(' + item.URI + ')');
 	$DOM.css('background-position', 'center');
@@ -19,6 +19,8 @@ async function asElement(item) {
 	if (item instanceof Product) {
 		$DOM.addClass('product ' + item.name);
 	} else if (item instanceof Shelf) {
+		console.log('pack dir: ' + item.pack_from);
+		$DOM.css('flex-direction', item.pack_from);
 		$DOM.addClass('shelf ' + item.name);
 	} else {
 		throw new TypeError('Expected shelf rack item');
@@ -38,11 +40,11 @@ async function showScreen($DOM, replacements) {
 	});
 }
 
-async function blah(item) {
-	let $DOM = await asElement(item);
+async function $buildDOM(item) {
+	let $DOM = await $asElement(item);
 	if (Array.isArray(item.items)) {
 		for (let nested of item.items) {
-			$DOM.append(await blah(nested));
+			$DOM.append(await $buildDOM(nested));
 		}
 	}
 	return $DOM;
@@ -52,14 +54,12 @@ async function main($DOM, configuration) {
 	let rack = new ShelfRack(configuration.layout, configuration.item_classes);
 	let $rack_DOM = $('<div class="rack">');
 	for (let item of rack.items) {
-		$rack_DOM.append(await blah(item));
+		$rack_DOM.append(await $buildDOM(item));
 	}
 
 	$DOM.find('.stimuli').append($rack_DOM);
 
 	$DOM.fadeIn(200);
-
-	let product_scale = 0.85;
 
 	$('.shelf').css('height', 100 / $('.rack').children().length + '%');
 
@@ -78,12 +78,12 @@ async function main($DOM, configuration) {
 				($(this)
 					.parent()
 					.height() *
-					product_scale *
+					configuration.product_scale *
 					100) /
 					100 +
 				'px'
 		);
-		$(this).css('background-position', 'center ' + 100 - product_scale * 100 + '%');
+		$(this).css('background-position', 'center ' + 100 - configuration.product_scale * 100 + '%');
 	});
 
 	await onClick($DOM);

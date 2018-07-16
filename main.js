@@ -15,6 +15,7 @@ async function $asElement(item) {
 	let $DOM = $('<div></div>');
 	$DOM.css('background-image', 'url(' + item.URI + ')');
 	$DOM.css('background-position', 'center');
+	$DOM.css('flex-grow', item.shelf_proportion);
 
 	if (item instanceof Product) {
 		$DOM.addClass('product ' + item.name);
@@ -64,14 +65,6 @@ async function main($DOM, configuration) {
 	$('.shelf').css('height', 100 / $('.rack').children().length + '%');
 
 	$('.product').each(function() {
-		$(this).css(
-			'width',
-			100 /
-				$(this)
-					.parent()
-					.children().length +
-				'%'
-		);
 		$(this).css(
 			'background-size',
 			'auto ' +

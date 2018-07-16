@@ -1,14 +1,14 @@
 class Item {
-	constructor(name, URI, percent_width) {
+	constructor(name, URI, shelf_proportion) {
 		this.name = name;
 		this.URI = URI;
-		this.percent_width = percent_width;
+		this.shelf_proportion = shelf_proportion;
 	}
 }
 
 export class Product extends Item {
 	constructor(json_product_obj) {
-		super(json_product_obj.name, json_product_obj.URI, json_product_obj.percent_width);
+		super(json_product_obj.name, json_product_obj.URI, json_product_obj.shelf_proportion);
 	}
 }
 
@@ -25,7 +25,7 @@ const OVERFLOW_CALLBACKS = {
 
 export class Shelf extends Item {
 	constructor(json_shelf_obj, overflow_callback) {
-		super(json_shelf_obj.name, json_shelf_obj.URI, json_shelf_obj.percent_width);
+		super(json_shelf_obj.name, json_shelf_obj.URI, json_shelf_obj.shelf_proportion);
 		this.overflow_callback = overflow_callback;
 		this.pack_from = json_shelf_obj.pack_from;
 		this.items = [];
@@ -72,6 +72,11 @@ function parseItems(json_obj, item_arr, item_types_arr) {
 		}
 	} else {
 		json_obj = Object.assign(json_obj, item_types_arr.find(item => item.name === json_obj.name));
+		console.log(json_obj);
+		if (!json_obj.hasOwnProperty('shelf_proportion')) {
+			console.log('FUCK');
+			json_obj.shelf_proportion = 1;
+		}
 
 		if (json_obj.type === 'shelf') {
 			item_arr.push(new Shelf(json_obj, OVERFLOW_CALLBACKS.FAIL));

@@ -5,14 +5,16 @@ import languages from './lang.json';
 
 import { Product, Shelf, ShelfRack } from './shelf_rack';
 
-function onClick($element, mouse_position) {
+function onClick($element, click_info) {
 	return new Promise(function(resolve) {
 		$element.on('click', e => {
-			if (typeof mouse_position === 'object') {
-				mouse_position.x = e.pageX;
-				mouse_position.y = e.pageY;
-			}
+			if (typeof click_info === 'object') {
+				click_info.m_pos.x = e.pageX;
+				click_info.m_pos.y = e.pageY;
 
+				console.warn($(e.target).attr('class'));
+				click_info.product_type = $(e.target).attr('class');
+			}
 			resolve();
 		});
 	});
@@ -58,8 +60,6 @@ async function $buildDOM(item) {
 	return $DOM;
 }
 
-async function getClickPosition() {}
-
 async function main($DOM, configuration) {
 	let rack = new ShelfRack(configuration.layout, configuration.item_classes, configuration.product);
 	rack.populateShelves();
@@ -91,12 +91,15 @@ async function main($DOM, configuration) {
 	});
 
 	for (let i = 0; i < configuration.repeats; ++i) {
-		let m_pos = {
-			x: 0,
-			y: 0
+		let click_info = {
+			m_pos: {
+				x: NaN,
+				y: NaN
+			},
+			product_type: ''
 		};
-		await onClick($DOM, m_pos);
-		console.log(m_pos);
+		await onClick($DOM, click_info);
+		console.log(click_info);
 	}
 
 	return await $DOM.fadeOut(200);

@@ -5,9 +5,16 @@ import languages from './lang.json';
 
 import { Product, Shelf, ShelfRack } from './shelf_rack';
 
-function onClick($element) {
+function onClick($element, mouse_position) {
 	return new Promise(function(resolve) {
-		$element.on('click', resolve);
+		$element.on('click', e => {
+			if (typeof mouse_position === 'object') {
+				mouse_position.x = e.pageX;
+				mouse_position.y = e.pageY;
+			}
+
+			resolve();
+		});
 	});
 }
 
@@ -51,8 +58,12 @@ async function $buildDOM(item) {
 	return $DOM;
 }
 
+async function getClickPosition() {}
+
 async function main($DOM, configuration) {
-	let rack = new ShelfRack(configuration.layout, configuration.item_classes);
+	let rack = new ShelfRack(configuration.layout, configuration.item_classes, configuration.product);
+	rack.populateShelves();
+	console.log(rack);
 	let $rack_DOM = $('<div class="rack">');
 	for (let item of rack.items) {
 		$rack_DOM.append(await $buildDOM(item));
@@ -71,15 +82,23 @@ async function main($DOM, configuration) {
 				($(this)
 					.parent()
 					.height() *
-					configuration.product_scale *
+					configuration.product.scale *
 					100) /
 					100 +
 				'px'
 		);
-		$(this).css('background-position', 'center ' + 100 - configuration.product_scale * 100 + '%');
+		$(this).css('background-position', 'center ' + 100 - configuration.product * 100 + '%');
 	});
 
-	await onClick($DOM);
+	for (let i = 0; i < configuration.repeats; ++i) {
+		let m_pos = {
+			x: 0,
+			y: 0
+		};
+		await onClick($DOM, m_pos);
+		console.log(m_pos);
+	}
+
 	return await $DOM.fadeOut(200);
 }
 

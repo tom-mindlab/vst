@@ -10,61 +10,51 @@
 			"type": "shelf",
 			"URI": "https://i.imgur.com/Pi8qnDh.png"
 		},
+
 		{
 			"name": "absolut",
 			"type": "product",
+			"bias": 1,
 			"URI": "https://i.imgur.com/wtNbh87.png"
 		},
 		{
 			"name": "pinnacle",
 			"type": "product",
+			"bias": 2,
 			"URI": "https://i.imgur.com/3nmJ5OP.png"
 		}
 	],
-	"product_scale": 0.85,
+	"product": {
+		"count": 20,
+		"scale": 0.85
+	},
 	"layout": [
 		{
 			"name": "supermarket",
 			"pack_from": "row",
-			"items": [
-				{
-					"name": "absolut"
-				},
-				{
-					"name": "absolut"
-				},
-				{
-					"name": "absolut"
-				},
-				{
-					"name": "pinnacle"
-				}
-			]
+			"constraints": {
+				"min": 5,
+				"max": 10
+			},
+			"items": []
 		},
 		{
 			"name": "supermarket",
 			"pack_from": "row",
-			"items": [
-				{
-					"name": "pinnacle"
-				}
-			]
+			"constraints": {
+				"min": 5,
+				"max": 10
+			},
+			"items": []
 		},
 		{
 			"name": "supermarket",
 			"pack_from": "row-reverse",
-			"items": [
-				{
-					"name": "pinnacle"
-				},
-				{
-					"name": "pinnacle"
-				},
-				{
-					"name": "absolut",
-					"shelf_proportion": 2
-				}
-			]
+			"constraints": {
+				"min": 5,
+				"max": 10
+			},
+			"items": []
 		}
 	],
 	"language_options": {

@@ -113,15 +113,13 @@ export class ShelfRack {
 	}
 
 	*genProduct() {
-		let i = 0;
+		let i = Math.floor(Math.random() * this.product_classes.length);
 		let group_size = this.product_info.count / (this.product_classes.length * this.items.length);
 		while (true) {
 			if (i >= this.product_classes.length) {
 				i = 0;
 			}
-			for (let j = 0; j < group_size; ++j) {
-				console.log('yielding (' + i + ', ' + j + '):');
-				console.log(this.product_classes[i]);
+			for (let j = 0; j < group_size * this.product_classes[i].bias; ++j) {
 				yield this.product_classes[i];
 			}
 			i++;
@@ -144,8 +142,8 @@ export class ShelfRack {
 	}
 }
 
+// why isnt this a member function?? dont remember
 function rack_capacity(shelf_rack_items) {
-	console.log('hi');
 	let cap = 0;
 	for (let item in shelf_rack_items) {
 		cap += shelf_rack_items[item].capacity();
@@ -163,15 +161,6 @@ function parseItems(json_obj, item_arr, item_types_arr) {
 		}
 	} else {
 		json_obj = Object.assign(json_obj, item_types_arr.find(item => item.name === json_obj.name));
-		// if (!json_obj.hasOwnProperty('shelf_proportion')) {
-		// 	json_obj.shelf_proportion = 1;
-		// }
-		// if (!json_obj.constraints.hasOwnProperty('max')) {
-		// 	json_obj.constraints.max = Infinity;
-		// }
-		// if (!json_obj.constraints.hasOwnProperty('min')) {
-		// 	json_obj.constraints.min = 0;
-		// }
 
 		if (json_obj.type === 'shelf') {
 			item_arr.push(new Shelf(json_obj, OVERFLOW_CALLBACKS.FAIL));
@@ -187,33 +176,36 @@ function parseItems(json_obj, item_arr, item_types_arr) {
 		for (let key in json_obj) {
 			if (Array.isArray(json_obj[key])) {
 				item_arr[item_arr.length - 1].items = parseItems(json_obj[key], item_arr[item_arr.length - 1].items, item_types_arr);
-				// for (let i in parseItems(json_obj[key], item_arr[item_arr.length - 1].items, item_types_arr)) {
-				// 	item_arr[item_arr.length - 1].push(i);
-				// }
 			}
 		}
 	}
 	return item_arr;
 }
 
-async function getImageProps(URL) {
-	return await new Promise(resolve => {
-		let img = new Image();
-		img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
-		img.src = URL;
-	});
+async function $asElement(item) {
+	let $DOM = $('<div></div>');
+	$DOM.css('background-image', 'url(' + item.URI + ')');
+	$DOM.css('background-position', 'center');
+	$DOM.css('flex-grow', item.shelf_proportion);
+
+	if (item instanceof Product) {
+		$DOM.addClass('product ' + item.name);
+	} else if (item instanceof Shelf) {
+		$DOM.css('flex-direction', item.pack_from);
+		$DOM.addClass('shelf ' + item.name);
+	} else {
+		throw new TypeError('Expected shelf rack item');
+	}
+
+	return $DOM;
 }
 
-function $generateDOMTree(parent) {
-	let $DOM = parent.$DOM;
-	for (let child of parent.items) {
-		if (child instanceof Shelf) {
-			$DOM.append($generateDOMTree(child));
-		} else {
-			$DOM.append(child.$DOM);
+export async function $buildDOM(item) {
+	let $DOM = await $asElement(item);
+	if (Array.isArray(item.items)) {
+		for (let nested of item.items) {
+			$DOM.append(await $buildDOM(nested));
 		}
 	}
 	return $DOM;
 }
-
-function $itemArrayToDOM(items_arr) {}

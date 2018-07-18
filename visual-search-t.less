@@ -28,25 +28,23 @@
 			z-index: 5;
 			outline: none;
 			cursor: crosshair;
+			display: flex;
+			flex-direction: column;
 
-			.rack {
+			.shelf {
 				width: 100%;
-				height: 100%;
-				.shelf {
-					width: 100%;
-					max-height: 452px;
-					background-size: 100% 100%;
-					background-repeat: repeat-x;
-					background-position: center bottom;
-					display: flex;
-				}
+				max-height: 452px;
+				background-size: 100% 100%;
+				background-repeat: repeat-x;
+				background-position: center bottom;
+				display: flex;
+			}
 
-				.product {
-					background-repeat: no-repeat;
-					background-position: center 10%;
-					height: 100%;
-					// background-size: auto 100%;
-				}
+			.product {
+				background-repeat: no-repeat;
+				background-position: center 10%;
+				height: 100%;
+				// background-size: auto 100%;
 			}
 		}
 

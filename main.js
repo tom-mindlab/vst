@@ -4,6 +4,7 @@ import template from './visual-search-t.html';
 import languages from './lang.json';
 
 import { Product, Shelf, ShelfRack } from './shelf_rack';
+import { $buildDOM } from './shelf_rack';
 
 function onClick($element, click_info) {
 	return new Promise(function(resolve) {
@@ -11,32 +12,14 @@ function onClick($element, click_info) {
 			if (typeof click_info === 'object') {
 				click_info.m_pos.x = e.pageX;
 				click_info.m_pos.y = e.pageY;
-
-				console.warn($(e.target).attr('class'));
-				click_info.product_type = $(e.target).attr('class');
+				click_info.product_type.clicked = $(e.target)
+					.attr('class')
+					.split(' ')
+					.pop();
 			}
 			resolve();
 		});
 	});
-}
-
-async function $asElement(item) {
-	let $DOM = $('<div></div>');
-	$DOM.css('background-image', 'url(' + item.URI + ')');
-	$DOM.css('background-position', 'center');
-	$DOM.css('flex-grow', item.shelf_proportion);
-
-	if (item instanceof Product) {
-		$DOM.addClass('product ' + item.name);
-	} else if (item instanceof Shelf) {
-		console.log('pack dir: ' + item.pack_from);
-		$DOM.css('flex-direction', item.pack_from);
-		$DOM.addClass('shelf ' + item.name);
-	} else {
-		throw new TypeError('Expected shelf rack item');
-	}
-
-	return $DOM;
 }
 
 async function showScreen($DOM, replacements) {
@@ -45,83 +28,154 @@ async function showScreen($DOM, replacements) {
 	$DOM.find('.message').text(replacements.message);
 	$DOM.find('.continue').val(replacements.continue_button);
 
-	return onClick($DOM.find('.continue')).then(() => {
-		return $DOM.fadeOut(200);
-	});
+	await onClick($DOM.find('.continue'));
+	return await $DOM.fadeOut(200);
 }
 
-async function $buildDOM(item) {
-	let $DOM = await $asElement(item);
-	if (Array.isArray(item.items)) {
-		for (let nested of item.items) {
-			$DOM.append(await $buildDOM(nested));
-		}
-	}
-	return $DOM;
-}
-
-async function main($DOM, configuration) {
-	let rack = new ShelfRack(configuration.layout, configuration.item_classes, configuration.product);
-	rack.populateShelves();
-	console.log(rack);
-	let $rack_DOM = $('<div class="rack">');
+// //////////////////////////////////////////////////////////////
+// generate new DOM for generated shelf rack                   //
+// //////////////////////////////////////////////////////////////
+// args:
+// 		[0]: $DOM	:	object (jQuery element)
+//				the stimuli div element
+//		[1]: product_scale	:	number
+//				the scale of products on the shelf
+// return:
+// 		object (jQuery element)
+// desc:
+//		generates a DOM for a given shelf rack layout, using the input $DOM as a base
+//		returns a completed DOM in the <div class="rack"><div class="shelf ...">... style
+async function $newLayout($container_DOM, product_scale, rack) {
+	let $rack_DOM = $container_DOM;
 	for (let item of rack.items) {
 		$rack_DOM.append(await $buildDOM(item));
 	}
 
-	$DOM.find('.stimuli').append($rack_DOM);
+	//$rack_DOM.append($rack_DOM);
+	//$rack_DOM.show();
 
-	$DOM.fadeIn(200);
+	//$rack_DOM.find('.shelf').css('height', 100 / $rack_DOM.children().length + '%');
 
-	$('.shelf').css('height', 100 / $('.rack').children().length + '%');
-
-	$('.product').each(function() {
+	$rack_DOM.find('.product').each(function() {
 		$(this).css(
 			'background-size',
 			'auto ' +
 				($(this)
 					.parent()
 					.height() *
-					configuration.product.scale *
+					product_scale *
 					100) /
 					100 +
 				'px'
 		);
-		$(this).css('background-position', 'center ' + 100 - configuration.product * 100 + '%');
 	});
 
+	return $rack_DOM;
+}
+
+// //////////////////////////////////////////////////////////////
+// MAIN SCRIPT LOOP                                            //
+// //////////////////////////////////////////////////////////////
+// args:
+// 	[0]: $DOM			:	object (jQuery element)
+//			the jQuery DOM element handle to the .main div
+// 	[1]: configuration	:	object (parsed json)
+// return:
+// 		array
+// desc:
+// 		the main stimuli display and input recording loop, generates shelves on the fly from the config
+// 		and records user input (which it returns as an array)
+async function main($DOM, configuration, pause, pause_replacements) {
+	let rack = new ShelfRack(configuration.layout, configuration.item_classes, configuration.product);
+	let click_data = [];
+
+	let timer = controls.timer($DOM.find('.timer'));
+	timer.duration(configuration.timer_duration);
+	let reset_duration = 500;
+	timer.resetDuration(reset_duration);
+	timer.timeout(async function() {
+		timer.stop();
+		$DOM.fadeOut(reset_duration);
+		await showScreen(pause, pause_replacements);
+		timer.reset();
+		await new Promise(res =>
+			setTimeout(() => {
+				$DOM.fadeIn(reset_duration);
+				res();
+			}, reset_duration)
+		);
+		timer.start();
+	});
+
+	$DOM.show();
+	let $stimuli = $DOM.find('.stimuli');
+	let $instruction = $DOM.find('.instruction');
 	for (let i = 0; i < configuration.repeats; ++i) {
+		$instruction.hide();
+		rack.populateShelves();
+		$stimuli.empty();
+		$stimuli.append(await $newLayout($stimuli, configuration.product.scale, rack));
+		$stimuli.hide();
+		let requested_product = rack.product_classes[Math.floor(Math.random() * rack.product_classes.length)].name;
+		$instruction.text('Please click on the ' + requested_product);
+		await new Promise(res =>
+			setTimeout(() => {
+				$stimuli.fadeIn(reset_duration);
+				$instruction.fadeIn(reset_duration);
+				res();
+			}, reset_duration)
+		);
+		timer.start();
 		let click_info = {
 			m_pos: {
 				x: NaN,
 				y: NaN
 			},
-			product_type: ''
+			product_type: {
+				requested: rack.product_classes[Math.floor(Math.random() * rack.product_classes.length)].name,
+				clicked: null
+			},
+			time_taken: NaN
 		};
-		await onClick($DOM, click_info);
-		console.log(click_info);
+		await onClick($stimuli, click_info);
+		timer.stop();
+		click_info.time_taken = timer.value();
+		click_data.push(click_info);
+		timer.reset();
 	}
 
-	return await $DOM.fadeOut(200);
+	return click_data;
 }
 
+// //////////////////////////////////////////////////////////////
+// ENTRY POINT (DEFAULT EXPORTED FUNCTION)                     //
+// //////////////////////////////////////////////////////////////
+// args:
+// [0]: configuration	:	object (parsed json)
+//		the .json data passed into the component, see the examples
+// [1]: callback		: 	function
+// 		the function to execute on element completion, expects two parameters:
+//		[0]: meta		:	object
+//			 the meta data which will be written to the user's session objects (maintained between elements)
+//		[1]: data		:	array
+//			 the data produced by the user running through the element
 export default async function(configuration, callback) {
+	// language
 	let lang = utils.buildLanguage(languages, configuration);
 
 	let $DOM = $(template).clone();
-
 	let $intro_screen = $DOM.find('.introduction').hide();
 	let $pause_screen = $DOM.find('.pause-screen').hide();
 	let $main = $DOM.find('.main').hide();
 
 	screen.enter($DOM, 'fade');
 
-	showScreen($intro_screen, lang.screens.intro)
-		.then(() => {
-			return main($main, configuration);
-		})
-		.then(() => {
-			// todo...
-			callback({}, {});
-		});
+	await showScreen($intro_screen, lang.screens.intro);
+
+	let meta = {};
+	let data = await main($main, configuration, $pause_screen, lang.screens.pause);
+
+	screen.exit('fade', async function() {
+		callback(meta, data);
+	});
 }

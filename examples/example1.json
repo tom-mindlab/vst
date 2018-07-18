@@ -1,7 +1,7 @@
 {
 	"wombat_component": "visual search t",
-	"repeats": 2,
-	"timer_duration": 20000,
+	"repeats": 6,
+	"timer_duration": 30000,
 	"randomise": true,
 	"sample": -1,
 	"item_classes": [
@@ -20,8 +20,14 @@
 		{
 			"name": "pinnacle",
 			"type": "product",
-			"bias": 2,
+			"bias": 1,
 			"URI": "https://i.imgur.com/3nmJ5OP.png"
+		},
+		{
+			"name": "smirnoff",
+			"type": "product",
+			"bias": 1,
+			"URI": "https://i.imgur.com/G4dYVX2.png"
 		}
 	],
 	"product": {
@@ -66,8 +72,7 @@
 				"continue_button": "Continue"
 			},
 			"intro": {
-				"message": "welcome to the Commenting test",
-				"continue_button": "Start",
+				"message": "AAAAAAAAAA",
 				"continue_loading_button": "Loading images, please wait."
 			}
 		}

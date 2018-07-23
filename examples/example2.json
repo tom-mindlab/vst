@@ -1,0 +1,73 @@
+{
+    "wombat_component": "visual search t",
+    "repeats": 6,
+    "timer": {
+        "duration": 300000,
+        "reset_duration": 200
+    },
+    "randomise": true,
+    "sample": -1,
+    "item_classes": {
+        "shelves": [
+            {
+                "name": "supermarket",
+                "bounds": {
+                    "top": 0,
+                    "bottom": 28
+                },
+                "URI": "https://i.imgur.com/Pi8qnDh.png"
+            }
+        ],
+        "products": [
+            {
+                "name": "Stolichnaya",
+                "bias": 1,
+                "URI": "https://i.imgur.com/4iPEhpK.png"
+            },
+            {
+                "name": "New Amsterdam",
+                "bias": 1,
+                "URI": "https://i.imgur.com/cWDQzwH.png"
+            },
+            {
+                "name": "Pinnacle",
+                "bias": 1,
+                "URI": "https://i.imgur.com/GDOPvqL.png"
+            },
+            {
+                "name": "Skyy",
+                "bias": 1,
+                "URI": "https://i.imgur.com/U0hM1Pw.png"
+            }
+        ]
+    },
+    "product_info": {
+        "count": 30,
+        "scale": 1
+    },
+    "layout": [
+        {
+            "name": "supermarket",
+            "pack_from": "row"
+        },
+        {
+            "name": "supermarket",
+            "pack_from": "row"
+        }
+    ],
+    "language_options": {
+        "continue": "continue",
+        "title": "Visual Comment test",
+        "screens": {
+            "pause": {
+                "message": "Test paused",
+                "continue_button": "Continue"
+            },
+            "intro": {
+                "message": "AAAAAAAAAA",
+                "continue_button": "YEET",
+                "continue_loading_button": "Loading images, please wait."
+            }
+        }
+    }
+}

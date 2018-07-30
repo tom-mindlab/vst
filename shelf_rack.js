@@ -65,14 +65,11 @@ class Shelf extends Item {
 export class ShelfRack {
 	constructor(layout_arr, item_classes, product_obj) {
 
-
-		// holy fuck this is bad code, needs a refactor (change in the config structure)... cba right now (16/07/18) [tom]
 		this.product_classes = item_classes.products;
 
 		this.shelf_classes = item_classes.shelves;
 
-		this.items = [];
-		this.items = parseItems(layout_arr, this.items, this.shelf_classes);
+		this.items = parseItems(layout_arr, [], this.shelf_classes);
 		this.product_info = product_obj;
 	}
 
@@ -140,8 +137,6 @@ function parseItems(json_obj, item_arr, shelf_types_arr) {
 		}
 	} else {
 		json_obj = Object.assign(json_obj, shelf_types_arr.find(item => item.name === json_obj.name));
-
-
 		item_arr.push(new Shelf(json_obj, OVERFLOW_CALLBACKS.FAIL));
 	}
 	return item_arr;
@@ -154,9 +149,6 @@ async function $asElement(item) {
 	$DOM.css('flex-grow', item.shelf_proportion);
 
 	if (item instanceof Product) {
-		// $DOM = $('<div></div>');
-		// $DOM.append($('<img src="' + item.URI + '">'));
-		// $DOM = $('<img src="' + item.URI + '">');
 		$DOM.addClass('product ' + item.name);
 	} else if (item instanceof Shelf) {
 		$DOM.css('flex-direction', item.pack_from);

@@ -6,22 +6,12 @@ import languages from './lang.json';
 import { ShelfRack } from './shelf_rack';
 import { $newLayout } from './shelf_rack';
 
-function getJSONAsync(URI) {
-	return new Promise(res => $.getJSON(URI, res));
-}
+function onClick($element) {
 
-function onClick($element, click_info) {
 	return new Promise(function (resolve) {
-		$element.on('click', e => {
-			if (typeof click_info === 'object') {
-				click_info.m_pos.x = e.pageX;
-				click_info.m_pos.y = e.pageY;
-				click_info.product_type.clicked = $(e.target)
-					.attr('class')
-					.split(' ')
-					.pop();
-			}
-			resolve();
+		$element.on('click', async (e) => {
+
+			resolve(e);
 		});
 	});
 }
@@ -66,8 +56,20 @@ async function main($DOM, configuration, pause, pause_replacements) {
 	$DOM.show();
 	let $stimuli = $DOM.find('.stimuli');
 	let $instruction = $DOM.find('.instruction');
-	for (let i = 0; i < configuration.repeats; ++i) {
-		rack.populateShelves();
+
+	// MAIN LOOP
+	for (let i = 0, repeat = false; i < configuration.iterations; repeat ? i : ++i, repeat = false) {
+
+		console.log("iteration: " + i);
+		// console.log("repetition? " + repeat);
+
+		if (repeat === true) {
+			if (configuration.repeat_behavior.regenerate) {
+				rack.populateShelves();
+			}
+		} else {
+			rack.populateShelves();
+		}
 
 		$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack));
 		$stimuli.hide();
@@ -89,13 +91,39 @@ async function main($DOM, configuration, pause, pause_replacements) {
 			},
 			time_taken: NaN
 		};
-		await onClick($stimuli, click_info);
+		console.log(click_info);
+		console.log('.');
+
+
+		let event_info = await onClick($stimuli);
+
+		let $target = $(event_info.target);
+		let target_class = $target.attr('class');
+		click_info.m_pos.x = event_info.pageX;
+		click_info.m_pos.y = event_info.pageY;
+		click_info.product_type.clicked = target_class.substr(target_class.indexOf(' ') + 1);
+		console.log(click_info.product_type.requested);
+		console.log(click_info.product_type.clicked);
+		console.log((click_info.product_type.requested != click_info.product_type.clicked));
+
+		$target.addClass('clicked');
+		(click_info.product_type.requested != click_info.product_type.clicked) ? $target.addClass('incorrect') : $target.addClass('correct');
+
 		timer.stop();
 		click_info.time_taken = timer.value();
 		click_data.push(click_info);
 		await timer.reset();
 		$instruction.empty();
 		$stimuli.empty();
+		// console.log(click_info);
+		// console.log(click_info.product_type.requested);
+		// console.log(click_info.product_type.clicked);
+
+		if (configuration.repeat_behavior.triggers.wrong_answer) {
+			if (click_info.product_type.requested != click_info.product_type.clicked) {
+				repeat = true;
+			}
+		}
 	}
 
 	return click_data;

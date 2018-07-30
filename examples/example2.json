@@ -1,12 +1,18 @@
 {
     "wombat_component": "visual search t",
-    "repeats": 6,
+    "iterations": 6,
     "timer": {
-        "duration": 300000,
-        "reset_duration": 200
+        "duration": 100000,
+        "reset_duration": 300
     },
-    "randomise": true,
-    "sample": -1,
+    "repeat_behavior": {
+        "triggers": {
+            "wrong_answer": true
+        },
+        "rearrange": false,
+        "new_target": false,
+        "continue_at": 2
+    },
     "item_classes": {
         "shelves": [
             {

@@ -7,7 +7,6 @@ import { ShelfRack } from './shelf_rack';
 import { $newLayout } from './shelf_rack';
 
 function onClick($element) {
-
 	return new Promise(function (resolve) {
 		$element.on('click', async (e) => {
 

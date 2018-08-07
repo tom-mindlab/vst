@@ -39,7 +39,7 @@ A specialised search component which generates shelf layouts on the fly given mi
       - Display pause screen
     - On click event:
       - Log click information (see Output section below for content + format)
-  - If trials are all done (trial number = configuration.iterations), break out of the main loop, return array of click information objects
+  - If trials are all done (trial number = `configuration.iterations`), break out of the main loop, return array of click information objects
   - Otherwise, continue
 - Send click information array via `DATA` array
   - *(`META` object is always `null`)*

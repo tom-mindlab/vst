@@ -62,7 +62,6 @@
         }
     ],
     "language_options": {
-        "continue": "continue",
         "screens": {
             "pause": {
                 "message": "Test paused",

@@ -3,6 +3,8 @@ import { screen, utils, controls } from 'wombat';
 import template from './visual-search-t.html';
 import languages from './lang.json';
 
+import ldExtend from 'lodash/extend';
+
 import { ShelfRack } from './shelf_rack';
 import { $newLayout } from './shelf_rack';
 
@@ -134,6 +136,7 @@ async function main($DOM, configuration, pause, pause_replacements) {
 export default async function (configuration, callback) {
 	// language
 	let lang = utils.buildLanguage(languages, configuration);
+	ldExtend(lang, configuration.language_options);
 
 	let $DOM = $(template).clone();
 	let $intro_screen = $DOM.find('.introduction').hide();

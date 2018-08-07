@@ -63,7 +63,6 @@
     ],
     "language_options": {
         "continue": "continue",
-        "title": "Visual Comment test",
         "screens": {
             "pause": {
                 "message": "Test paused",
@@ -74,6 +73,10 @@
                 "continue_button": "YEET",
                 "continue_loading_button": "Loading images, please wait."
             }
+        },
+        "title": {
+            "header": "Visual search",
+            "message": "Click the requested image"
         }
     }
 }

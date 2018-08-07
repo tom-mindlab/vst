@@ -59,9 +59,6 @@ async function main($DOM, configuration, pause, pause_replacements) {
 	// MAIN LOOP
 	for (let i = 0, repeat = false; i < configuration.iterations; repeat ? i : ++i, repeat = false) {
 
-		console.log("iteration: " + i);
-		// console.log("repetition? " + repeat);
-
 		if (repeat === true) {
 			if (configuration.repeat_behavior.regenerate) {
 				rack.populateShelves();
@@ -90,9 +87,6 @@ async function main($DOM, configuration, pause, pause_replacements) {
 			},
 			time_taken: NaN
 		};
-		console.log(click_info);
-		console.log('.');
-
 
 		let event_info = await onClick($stimuli);
 
@@ -101,9 +95,6 @@ async function main($DOM, configuration, pause, pause_replacements) {
 		click_info.m_pos.x = event_info.pageX;
 		click_info.m_pos.y = event_info.pageY;
 		click_info.product_type.clicked = target_class.substr(target_class.indexOf(' ') + 1);
-		console.log(click_info.product_type.requested);
-		console.log(click_info.product_type.clicked);
-		console.log((click_info.product_type.requested != click_info.product_type.clicked));
 
 		$target.addClass('clicked');
 		(click_info.product_type.requested != click_info.product_type.clicked) ? $target.addClass('incorrect') : $target.addClass('correct');
@@ -111,12 +102,10 @@ async function main($DOM, configuration, pause, pause_replacements) {
 		timer.stop();
 		click_info.time_taken = timer.value();
 		click_data.push(click_info);
-		await timer.reset();
+		await timer.resetAsync();
+		console.log('foo');
 		$instruction.empty();
 		$stimuli.empty();
-		// console.log(click_info);
-		// console.log(click_info.product_type.requested);
-		// console.log(click_info.product_type.clicked);
 
 		if (configuration.repeat_behavior.triggers.wrong_answer) {
 			if (click_info.product_type.requested != click_info.product_type.clicked) {
@@ -149,11 +138,15 @@ export default async function (configuration, callback) {
 	let $pause_screen = $DOM.find('.pause-screen').hide();
 	let $main = $DOM.find('.main').hide();
 
+	let $title = $DOM.find('.title');
+	$title.find('.header').text(lang.title.header);
+	$title.find('.message').text(lang.title.message);
+
 	screen.enter($DOM, 'fade');
 
 	await showScreen($intro_screen, lang.screens.intro);
 
-	let meta = {};
+	let meta = null;
 	let data = await main($main, configuration, $pause_screen, lang.screens.pause);
 
 	screen.exit('fade', async function () {

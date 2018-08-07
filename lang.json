@@ -1,7 +1,6 @@
 {
 	"default": {
 		"continue": "NO TRANSLATION",
-		"title": "NO TRANSLATION",
 		"screens": {
 			"pause": {
 				"message": "NO TRANSLATION",
@@ -18,10 +17,8 @@
 			}
 		}
 	},
-
 	"en": {
 		"continue": "continue",
-		"title": "Visual Comment test",
 		"screens": {
 			"pause": {
 				"message": "Test paused",
@@ -36,6 +33,10 @@
 				"message": "blah",
 				"continue_button": "continue"
 			}
+		},
+		"title": {
+			"title": "Visual search",
+			"message": "Click the requested image"
 		}
 	}
 }

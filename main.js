@@ -56,9 +56,11 @@ async function main($DOM, configuration, pause, pause_replacements) {
 	let $stimuli = $DOM.find('.stimuli');
 	let $instruction = $DOM.find('.instruction');
 
+	let $trial_count = $DOM.find('.trial-count');
 	// MAIN LOOP
 	for (let i = 0, repeat = false; i < configuration.iterations; repeat ? i : ++i, repeat = false) {
 
+		$trial_count.text(i + '/' + configuration.iterations);
 		if (repeat === true) {
 			if (configuration.repeat_behavior.regenerate) {
 				rack.populateShelves();

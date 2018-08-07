@@ -11,7 +11,7 @@ A specialised search component which generates shelf layouts on the fly given mi
 - `"timer"`: The timer used in the trials
   - `"duration"`: How long the user has to complete each trial
   - `"reset_duration"`: How long it takes for the timer to reset
-- `"repeat_behavior"`: The behavior of trial repeats
+- `"repeat_behavior"`: The behavior of trial repeats, where a repeat is re-executing the trial (trial index is not incremented)
   - `"triggers"`: What events will cause a trial to repeat
   - `"rearrange"`: Whether a repeat will rearrange the shelf
   - `"new_target"`: Whether the user will be requested to find a different product on repeat

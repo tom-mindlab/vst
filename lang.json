@@ -1,6 +1,5 @@
 {
 	"default": {
-		"continue": "NO TRANSLATION",
 		"screens": {
 			"pause": {
 				"message": "NO TRANSLATION",
@@ -18,7 +17,6 @@
 		}
 	},
 	"en": {
-		"continue": "continue",
 		"screens": {
 			"pause": {
 				"message": "Test paused",

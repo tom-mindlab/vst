@@ -43,16 +43,22 @@ async function main($DOM, configuration, pause, pause_replacements) {
 	let rack = new ShelfRack(configuration.layout, configuration.item_classes, configuration.product_info);
 	let click_data = [];
 
+	let pause_experiment = async function (reset_timer) {
+		reset_timer ? timer.stop() : timer.pause();
+		$DOM.fadeOut(configuration.timer.reset_duration / 2);
+		await showScreen(pause, pause_replacements);
+
+		await Promise.all([reset_timer ? timer.resetAsync() : async () => { }, $DOM.fadeIn(configuration.timer.reset_duration).promise()]);
+
+		reset_timer ? timer.start() : timer.unpause();
+	}
+
 	let timer = controls.timer($DOM.find('.timer'));
 	timer.duration(configuration.timer.duration);
 	timer.resetDuration(configuration.timer.reset_duration);
-	timer.timeout(async function () {
-		timer.stop();
-		$DOM.fadeOut(configuration.timer.reset_duration / 2);
-		await showScreen(pause, pause_replacements);
-		await Promise.all([timer.reset(), $DOM.fadeIn(configuration.timer.reset_duration).promise()]);
-		timer.start();
-	});
+
+	let pause_button = controls.pause($DOM.find('.pause-button'));
+	pause_button.click(async () => pause_experiment(false));
 
 	$DOM.show();
 	let $stimuli = $DOM.find('.stimuli');
@@ -62,14 +68,23 @@ async function main($DOM, configuration, pause, pause_replacements) {
 	// MAIN LOOP
 	for (let i = 0, repeat = false; i < configuration.iterations; repeat ? i : ++i, repeat = false) {
 
-		$trial_count.text(i + '/' + configuration.iterations);
-		if (repeat === true) {
-			if (configuration.repeat_behavior.regenerate) {
-				rack.populateShelves();
+		timer.timeout(async () => {
+			pause_experiment(true);
+			console.log(configuration.repeat_behavior);
+			if (configuration.repeat_behavior.triggers.timeout === true) {
+				if (configuration.repeat_behavior.rearrange === true) {
+					console.log("reconfigure");
+					$stimuli.empty();
+					$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack));
+					rack.populateShelves();
+				}
 			}
-		} else {
-			rack.populateShelves();
-		}
+		});
+		$trial_count.text(i + '/' + configuration.iterations);
+
+		rack.populateShelves();
+
+
 
 		$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack));
 		$stimuli.hide();

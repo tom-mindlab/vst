@@ -2,14 +2,15 @@
     "wombat_component": "visual search t",
     "iterations": 6,
     "timer": {
-        "duration": 100000,
+        "duration": 20000,
         "reset_duration": 300
     },
     "repeat_behavior": {
         "triggers": {
-            "wrong_answer": true
+            "wrong_answer": true,
+            "timeout": true
         },
-        "rearrange": false,
+        "rearrange": true,
         "new_target": false,
         "continue_at": 2
     },

@@ -162,7 +162,7 @@ async function $asElement(item) {
 	return $DOM;
 }
 
-export async function $buildDOM(item) {
+async function $buildDOM(item) {
 	let $DOM = await $asElement(item);
 	if (Array.isArray(item.items)) {
 		for (let nested of item.items) {
@@ -185,7 +185,7 @@ export async function $buildDOM(item) {
 // desc:
 //		generates a DOM for a given shelf rack layout, using the input $DOM as a base
 //		returns a completed DOM in the <div class="rack"><div class="shelf ...">... style
-export async function $newLayout($container_DOM, product_scale, rack) {
+export async function $newLayout($container_DOM, product_scale, rack, mouseover_classes) {
 	let $rack_DOM = $container_DOM;
 	for (let item of rack.items) {
 		$rack_DOM.append(await $buildDOM(item));
@@ -195,6 +195,19 @@ export async function $newLayout($container_DOM, product_scale, rack) {
 	$rack_DOM.find('.product').each(function () {
 		$(this).css('width', '100%');
 		$(this).css('margin-top', ((100 - (product_scale * 100)) * $(this).height()) / 100 + 'px');
+		for (const css_class of mouseover_classes) {
+
+			$(this).hover(
+				function () {
+					$(this).addClass(css_class);
+				}, function () {
+					$(this).removeClass(css_class);
+				}
+			);
+
+
+		}
+
 	});
 
 	return $rack_DOM;

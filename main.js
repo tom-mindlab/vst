@@ -77,7 +77,7 @@ async function main($DOM, configuration, pause, pause_replacements) {
 				if (configuration.repeat_behavior.rearrange === true) {
 					console.log("reconfigure");
 					$stimuli.empty();
-					$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack));
+					$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack, configuration.mouseover_classes));
 					rack.populateShelves();
 				}
 			}
@@ -87,7 +87,7 @@ async function main($DOM, configuration, pause, pause_replacements) {
 
 
 
-		$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack));
+		$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack, configuration.mouseover_classes));
 		$stimuli.hide();
 
 		// abstract this into the config

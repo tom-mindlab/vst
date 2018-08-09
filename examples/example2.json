@@ -1,8 +1,11 @@
 {
     "wombat_component": "visual search t",
     "iterations": 6,
+    "mouseover_classes": [
+        "highlight"
+    ],
     "timer": {
-        "duration": 20000,
+        "duration": 80000,
         "reset_duration": 300
     },
     "repeat_behavior": {

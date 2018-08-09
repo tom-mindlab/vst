@@ -64,7 +64,9 @@ async function main($DOM, configuration, pause, pause_replacements) {
 	let $stimuli = $DOM.find('.stimuli');
 	let $instruction = $DOM.find('.instruction');
 
-	let $trial_count = $DOM.find('.trial-count');
+	let trial_count = controls.progress($DOM.find('.progress'));
+	trial_count.setTotal(configuration.iterations);
+	trial_count.update(0);
 	// MAIN LOOP
 	for (let i = 0, repeat = false; i < configuration.iterations; repeat ? i : ++i, repeat = false) {
 
@@ -80,7 +82,6 @@ async function main($DOM, configuration, pause, pause_replacements) {
 				}
 			}
 		});
-		$trial_count.text(i + '/' + configuration.iterations);
 
 		rack.populateShelves();
 
@@ -131,6 +132,8 @@ async function main($DOM, configuration, pause, pause_replacements) {
 				repeat = true;
 			}
 		}
+
+		trial_count.update(1);
 	}
 
 	return click_data;

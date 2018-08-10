@@ -78,12 +78,12 @@ async function main($DOM, configuration, pause, pause_replacements) {
 					console.log("reconfigure");
 					$stimuli.empty();
 					$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack, configuration.mouseover_classes));
-					rack.populateShelves();
+					await rack.populateShelves();
 				}
 			}
 		});
 
-		rack.populateShelves();
+		await rack.populateShelves();
 
 
 
@@ -91,7 +91,8 @@ async function main($DOM, configuration, pause, pause_replacements) {
 		$stimuli.hide();
 
 		// abstract this into the config
-		let requested_product = rack.product_classes[Math.floor(Math.random() * rack.product_classes.length)].name;
+		//let requested_product = rack.product_classes[Math.floor(Math.random() * rack.product_classes.length)].name;
+		let requested_product = $('.product').eq(Math.floor(Math.random() * $('.product').length)).attr('class').split(' ').slice(1).reduce((s, v) => { return s + ' ' + v; });
 		$instruction.text('Please click on the ' + requested_product);
 		$stimuli.fadeIn(configuration.timer.reset_duration);
 		$instruction.fadeIn(configuration.timer.reset_duration);
@@ -114,26 +115,28 @@ async function main($DOM, configuration, pause, pause_replacements) {
 		let target_class = $target.attr('class');
 		click_info.m_pos.x = event_info.pageX;
 		click_info.m_pos.y = event_info.pageY;
-		click_info.product_type.clicked = target_class.substr(target_class.indexOf(' ') + 1);
+		click_info.product_type.clicked = $target.attr('id');
 
 		$target.addClass('clicked');
+		console.log(click_info);
 		(click_info.product_type.requested != click_info.product_type.clicked) ? $target.addClass('incorrect') : $target.addClass('correct');
 
 		timer.stop();
 		click_info.time_taken = timer.value();
 		click_data.push(click_info);
-		await timer.resetAsync();
-		console.log('foo');
-		$instruction.empty();
-		$stimuli.empty();
+
 
 		if (configuration.repeat_behavior.triggers.wrong_answer) {
 			if (click_info.product_type.requested != click_info.product_type.clicked) {
+				console.log(click_info.product_type.requested + '!=' + click_info.product_type.clicked);
 				repeat = true;
 			}
 		}
 
-		trial_count.update(1);
+		if (!repeat) trial_count.update(i + 1);
+		await timer.resetAsync();
+		$instruction.empty();
+		$stimuli.empty();
 	}
 
 	return click_data;

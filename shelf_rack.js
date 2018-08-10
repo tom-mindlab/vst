@@ -2,16 +2,15 @@ import ldShuffle from 'lodash/shuffle'
 
 
 class Item {
-	constructor(name, URI, shelf_proportion) {
+	constructor(name, URI) {
 		this.name = name;
 		this.URI = URI;
-		this.shelf_proportion = shelf_proportion;
 	}
 }
 
 class Product extends Item {
 	constructor(json_product_obj) {
-		super(json_product_obj.name, json_product_obj.URI, 1);
+		super(json_product_obj.name, json_product_obj.URI);
 	}
 }
 
@@ -29,7 +28,7 @@ const OVERFLOW_CALLBACKS = {
 class Shelf extends Item {
 	constructor(json_shelf_obj, overflow_callback) {
 
-		super(json_shelf_obj.name, json_shelf_obj.URI, 1);
+		super(json_shelf_obj.name, json_shelf_obj.URI);
 		this.overflow_callback = overflow_callback;
 		this.pack_from = json_shelf_obj.pack_from;
 		this.bounds = json_shelf_obj.bounds;
@@ -71,6 +70,37 @@ export class ShelfRack {
 
 		this.items = parseItems(layout_arr, [], this.shelf_classes);
 		this.product_info = product_obj;
+
+		console.log(this.items.length);
+		this.items[0].bounds.bottom /= 2;
+	}
+
+	async tallestProduct() {
+		let largest_product = {
+			height: 0,
+			width: 0
+		};
+		for (const product in this.product_classes) {
+			const dim = await imageDimensions(this.product_classes[product].URI);
+			if (dim.y > largest_product.height) {
+				largest_product.width = dim.x;
+				largest_product.height = dim.y;
+			}
+		}
+		return largest_product;
+	}
+
+	async smallestProduct() {
+		let smallest_product = await this.tallestProduct();
+		for (const product in this.product_classes) {
+			const dim = await imageDimensions(this.product_classes[product].URI);
+			if (dim.y < smallest_product.height) {
+				smallest_product.width = dim.x;
+				smallest_product.height = dim.y;
+			}
+		}
+		console.log(smallest_product);
+		return smallest_product;
 	}
 
 	// yields a product object
@@ -103,7 +133,7 @@ export class ShelfRack {
 		}
 	}
 
-	populateShelves() {
+	async populateShelves() {
 		let gen = this.genProduct();
 		let targets = new Array(this.items.length);
 		targets.fill(Math.floor(this.product_info.count / this.items.length));
@@ -114,7 +144,20 @@ export class ShelfRack {
 		for (let shelf in this.items) {
 
 			if (this.items[shelf] instanceof Shelf) {
+				console.warn(this.items[shelf].bounds.bottom);
 				this.items[shelf].clear();
+				// let used_width = 0;
+				// let shelf_dim = await imageDimensions(this.items[shelf].URI);
+				// console.log(shelf_dim);
+				// console.log("shelf: " + shelf_dim.x);
+				// while (used_width < shelf_dim.x) {
+				// 	this.items[shelf].push(new Product(gen.next().value));
+
+				// 	const product_dim = await imageDimensions(this.items[shelf].items[this.items[shelf].items.length - 1].URI);
+				// 	used_width += product_dim.x;
+				// 	console.log("prod: " + product_dim.x);
+				// 	console.log("used:" + used_width);
+				// }
 
 				while (this.items[shelf].items.length < targets[shelf]) {
 					this.items[shelf].push(new Product(gen.next().value));
@@ -142,14 +185,24 @@ function parseItems(json_obj, item_arr, shelf_types_arr) {
 	return item_arr;
 }
 
-async function $asElement(item) {
+function imageDimensions(URI) {
+	let img = new Image();
+	img.src = URI;
+	return new Promise(res => { img.onload = res({ x: img.width, y: img.height }); });
+}
+
+async function $asElement(tallest, item) {
 	let $DOM = $('<div></div>');
 	$DOM.css('background-image', 'url(' + item.URI + ')');
 	$DOM.css('background-position', 'center');
-	$DOM.css('flex-grow', item.shelf_proportion);
 
 	if (item instanceof Product) {
+		const dim = await imageDimensions(item.URI);
 		$DOM.addClass('product ' + item.name);
+		$DOM.attr('id', item.name);
+		$DOM.css('flex-basis', dim.x);
+		const sf = (dim.y / tallest.height);
+		$DOM.css('height', sf * 100 + '%');
 	} else if (item instanceof Shelf) {
 		$DOM.css('flex-direction', item.pack_from);
 		$DOM.css('padding-top', item.bounds.top);
@@ -162,12 +215,26 @@ async function $asElement(item) {
 	return $DOM;
 }
 
-async function $buildDOM(item) {
-	let $DOM = await $asElement(item);
+async function $buildDOM(tallest, smallest, item, shelf_height, shelf_count) {
+	//console.log('ye');
+	let $DOM = await $asElement(tallest, item);
 	if (Array.isArray(item.items)) {
+		const shelf_dim = await imageDimensions(item.URI);
+		let remaining_width = shelf_dim.x;
+		console.log(smallest);
+
+
+		//console.log('rem: ' + remaining_width + '\tsmallest.width: ' + smallest.width * (Math.min((shelf_height) * (shelf_count), tallest.height) / Math.max((shelf_height) * (shelf_count), tallest.height)) * (1.5 * shelf_count))
 		for (let nested of item.items) {
-			$DOM.append(await $buildDOM(nested));
+			const item_dim = await imageDimensions(nested.URI);
+			const needed_space = item_dim.x * (Math.min((shelf_height) * (shelf_count), tallest.height) / Math.max((shelf_height) * (shelf_count), tallest.height)) * 0.75;
+			if (remaining_width - needed_space >= 0) {
+				remaining_width -= needed_space;
+				$DOM.append(await $buildDOM(tallest, smallest, nested));
+			}
 		}
+
+
 	}
 	return $DOM;
 }
@@ -188,13 +255,12 @@ async function $buildDOM(item) {
 export async function $newLayout($container_DOM, product_scale, rack, mouseover_classes) {
 	let $rack_DOM = $container_DOM;
 	for (let item of rack.items) {
-		$rack_DOM.append(await $buildDOM(item));
+		$rack_DOM.append(await $buildDOM(await rack.tallestProduct(), await rack.smallestProduct(), item, $container_DOM.height() / rack.items.length, rack.items.length));
 	}
 
 	$rack_DOM.find('.shelf').css('height', 100 / rack.items.length + '%');
 	$rack_DOM.find('.product').each(function () {
-		$(this).css('width', '100%');
-		$(this).css('margin-top', ((100 - (product_scale * 100)) * $(this).height()) / 100 + 'px');
+		//$(this).css('width', '100%');
 		for (const css_class of mouseover_classes) {
 
 			$(this).hover(

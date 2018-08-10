@@ -22,8 +22,8 @@
             {
                 "name": "supermarket",
                 "bounds": {
-                    "top": 0,
-                    "bottom": 28
+                    "top": 1,
+                    "bottom": 56
                 },
                 "URI": "https://i.imgur.com/Pi8qnDh.png"
             }
@@ -48,6 +48,21 @@
                 "name": "Skyy",
                 "bias": 1,
                 "URI": "https://i.imgur.com/U0hM1Pw.png"
+            },
+            {
+                "name": "Scree",
+                "bias": 1,
+                "URI": "https://i.imgur.com/e5CO7LG.png"
+            },
+            {
+                "name": "big pete",
+                "bias": 1,
+                "URI": "https://i.imgur.com/CJy83Xl.png"
+            },
+            {
+                "name": "wideboy",
+                "bias": 1,
+                "URI": "https://i.imgur.com/PZlfSES.png"
             }
         ]
     },

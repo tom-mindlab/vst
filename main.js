@@ -40,7 +40,12 @@ async function showScreen($DOM, replacements) {
 // 		the main stimuli display and input recording loop, generates shelves on the fly from the config
 // 		and records user input (which it returns as an array)
 async function main($DOM, configuration, pause, pause_replacements) {
-	let rack = new ShelfRack(configuration.layout, configuration.item_classes, configuration.product_info);
+	const rack_dimensions = {
+		x: $DOM.width(),
+		y: $DOM.height()
+	}
+	let rack = new ShelfRack(configuration.layout, configuration.item_classes, configuration.product_info, rack_dimensions);
+	console.log(rack);
 	let click_data = [];
 
 	let pause_experiment = async function (reset_timer) {
@@ -89,6 +94,7 @@ async function main($DOM, configuration, pause, pause_replacements) {
 
 		$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack, configuration.mouseover_classes));
 		$stimuli.hide();
+		console.log($stimuli);
 
 		// abstract this into the config
 		//let requested_product = rack.product_classes[Math.floor(Math.random() * rack.product_classes.length)].name;

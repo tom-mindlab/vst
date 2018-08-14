@@ -136,9 +136,8 @@ export class ShelfRack {
 
 	async generateProducts() {
 		let products = [];
-		const shelf_dim = await imageDimensions(this.items[0].URI);
-		const shelf_height = shelf_dim.y;
-		const total_space = shelf_dim.x * this.items.length;
+		const shelf_height = this.dimensions.y / this.items.length;
+		const total_space = this.dimensions.x * this.items.length;
 		const tallest = await this.tallestProduct();
 
 		for (const v of this.product_classes) {
@@ -171,15 +170,10 @@ export class ShelfRack {
 		const group_sizes = await (async () => {
 			let gs = [];
 
-			const allowed_width = total_space / this.product_classes.length;
-
-
-			function normaliseToRange(x, t_min, t_max) {
-				return (((x - slimmest.resolved_width) / (widest.resolved_width - slimmest.resolved_width)) * (t_max - t_min) + t_min);
-			}
+			const allowed_width = (0.8 * total_space) / this.product_classes.length;
 
 			for (const product of products) {
-				gs.push(Math.round(allowed_width / (1.5 * product.resolved_width)));
+				gs.push(Math.round(allowed_width / product.resolved_width));
 			}
 			return gs;
 		})();
@@ -235,7 +229,7 @@ async function imageDimensions(URI) {
 	return { x: img.width, y: img.height };
 }
 
-async function $asElement(e_item, tallest) {
+async function $asElement(e_item, tallest, rack) {
 	let $DOM = $('<div></div>');
 	$DOM.css('background-image', 'url(' + e_item.URI + ')');
 	$DOM.css('background-position', 'center');
@@ -248,6 +242,7 @@ async function $asElement(e_item, tallest) {
 		$DOM.css('height', sf * 100 + '%');
 	} else if (e_item instanceof Shelf) {
 		$DOM.css('flex-direction', e_item.pack_from);
+		$DOM.css('height', rack.dimensions.y / rack.items.length);
 		$DOM.css('padding-top', e_item.bounds.top);
 		$DOM.css('padding-bottom', e_item.bounds.bottom);
 		$DOM.addClass('shelf ' + e_item.name);
@@ -258,11 +253,11 @@ async function $asElement(e_item, tallest) {
 	return $DOM;
 }
 
-async function $buildDOM(item, tallest) {
-	let $DOM = await $asElement(item, tallest);
+async function $buildDOM(item, tallest, rack) {
+	let $DOM = await $asElement(item, tallest, rack);
 	if (Array.isArray(item.items)) {
 		for (let nested of item.items) {
-			$DOM.append(await $buildDOM(nested, tallest));
+			$DOM.append(await $buildDOM(nested, tallest, rack));
 		}
 	}
 	return $DOM;
@@ -285,7 +280,7 @@ export async function $newLayout($container_DOM, product_scale, rack, mouseover_
 	let $rack_DOM = $container_DOM;
 	for (let item of rack.items) {
 
-		$rack_DOM.append(await $buildDOM(item, await rack.tallestProduct()));
+		$rack_DOM.append(await $buildDOM(item, await rack.tallestProduct(), rack));
 	}
 
 	$rack_DOM.find('.product').each(function () {

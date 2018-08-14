@@ -98,7 +98,8 @@ async function main($DOM, configuration, pause, pause_replacements) {
 
 		// abstract this into the config
 		//let requested_product = rack.product_classes[Math.floor(Math.random() * rack.product_classes.length)].name;
-		let requested_product = $('.product').eq(Math.floor(Math.random() * $('.product').length)).attr('class').split(' ').slice(1).reduce((s, v) => { return s + ' ' + v; });
+
+		let requested_product = $('.product').eq(Math.floor(Math.random() * $('.product').length)).attr('id');
 		$instruction.text('Please click on the ' + requested_product);
 		$stimuli.fadeIn(configuration.timer.reset_duration);
 		$instruction.fadeIn(configuration.timer.reset_duration);

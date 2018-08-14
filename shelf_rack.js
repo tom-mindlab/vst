@@ -70,7 +70,7 @@ export class ShelfRack {
 
 		this.product_info = product_obj;
 
-		this.items[0].bounds.bottom /= 2;
+		this.items[0].bounds.bottom /= this.items.length;
 
 		this.dimensions = dimensions;
 	}

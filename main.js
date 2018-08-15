@@ -133,7 +133,7 @@ async function main($DOM, configuration, pause, pause_replacements) {
 
 		(click_info.product_type.requested != click_info.product_type.clicked) ? $overlay.addClass('incorrect') : $overlay.addClass('correct');
 
-		$target.append($overlay);
+		if (target_class.split(' ')[0] === 'product') $target.append($overlay);
 
 		timer.stop();
 		click_info.time_taken = timer.value();

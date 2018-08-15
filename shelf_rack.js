@@ -8,8 +8,11 @@ class Item {
 }
 
 class Product extends Item {
-	constructor(json_product_obj) {
-		super(json_product_obj.name, json_product_obj.URI);
+	constructor(product_class) {
+		super(product_class.name, product_class.URI);
+		this.dimensions = product_class.dimensions;
+		this.resolved_dimensions = product_class.resolved_dimensions;
+		this.counts = product_class.counts;
 	}
 }
 
@@ -31,27 +34,7 @@ class Shelf extends Item {
 		this.overflow_callback = overflow_callback;
 		this.pack_from = json_shelf_obj.pack_from;
 		this.bounds = json_shelf_obj.bounds;
-		this.items = [];
-	}
-
-	pop() {
-		this.items.pop();
-	}
-
-	push(item) {
-		// TODO:
-		// 1.   check if we have room for another product (width measurement), invoke overflow callback if there's no room
-		// 1.1  this could potentially be deferred until rendering
-
-		if (item instanceof Item) {
-			this.items.push(item);
-		} else {
-			throw new TypeError('Shelves can only accept Items');
-		}
-	}
-
-	clear() {
-		this.items.splice(0, this.items.length);
+		this.item_groups = [];
 	}
 
 }
@@ -75,32 +58,45 @@ export class ShelfRack {
 		this.dimensions = dimensions;
 	}
 
-	async tallestProduct() {
-		let largest_product = {
-			height: 0,
-			width: 0
-		};
-		for (const product in this.product_classes) {
-			const dim = await imageDimensions(this.product_classes[product].URI);
-			if (dim.y > largest_product.height) {
-				largest_product.width = dim.x;
-				largest_product.height = dim.y;
+	tallestProduct() {
+		let largest_product = this.product_classes[0];
+		for (const product of this.product_classes) {
+			if (product.dimensions.y > largest_product.dimensions.y) {
+				largest_product = product;
 			}
 		}
 		return largest_product;
 	}
 
-	async smallestProduct() {
-		let smallest_product = await this.tallestProduct();
-		for (const product in this.product_classes) {
-			const dim = await imageDimensions(this.product_classes[product].URI);
-			if (dim.y < smallest_product.height) {
-				smallest_product.width = dim.x;
-				smallest_product.height = dim.y;
+	shortestProduct() {
+		let smallest_product = this.tallestProduct();
+		for (const product of this.product_classes) {
+			if (product.dimensions.y < smallest_product.dimensions.y) {
+				smallest_product = product;
 			}
 		}
 		console.log(smallest_product);
 		return smallest_product;
+	}
+
+	widestProduct() {
+		let widest_product = this.product_classes[0];
+		for (const product of this.product_classes) {
+			if (product.resolved_dimensions.x > widest_product.resolved_dimensions.x) {
+				widest_product = product;
+			}
+		}
+		return widest_product;
+	}
+
+	slimmestProduct() {
+		let slimmest_product = this.widestProduct();
+		for (const product of this.product_classes) {
+			if (product.resolved_dimensions.x < slimmest_product.resolved_dimensions.x) {
+				slimmest_product = product;
+			}
+		}
+		return slimmest_product;
 	}
 
 	// yields a product object
@@ -134,70 +130,229 @@ export class ShelfRack {
 		}
 	}
 
-	async generateProducts() {
-		let products = [];
-		const shelf_height = this.dimensions.y / this.items.length;
-		const total_space = this.dimensions.x * this.items.length;
-		const tallest = await this.tallestProduct();
+	// async generateProducts() {
+	// 	let products = [];
+	// 	const shelf_height = this.dimensions.y / this.items.length;
+	// 	const total_space = this.dimensions.x * this.items.length;
+	// 	const tallest = await this.tallestProduct();
 
-		for (const v of this.product_classes) {
-			let new_item = new Product(v);
-			new_item.dim = await imageDimensions(v.URI);
-			new_item.resolved_width = new_item.dim.x * (shelf_height / tallest.height);
-			products.push(new_item);
+	// 	for (const v of this.product_classes) {
+	// 		let new_item = new Product(v);
+	// 		new_item.dim = await imageDimensions(v.URI);
+	// 		new_item.resolved_width = new_item.dim.x * (shelf_height / tallest.height);
+	// 		products.push(new_item);
+	// 	}
+
+	// 	const group_sizes = await (async () => {
+	// 		let gs = [];
+
+	// 		const allowed_width = (0.8 * total_space) / this.product_classes.length;
+
+	// 		for (const product of products) {
+	// 			gs.push(Math.round(allowed_width / product.resolved_width));
+	// 		}
+	// 		return gs;
+	// 	})();
+
+	// 	let upsample = [];
+	// 	for (let p_index in products) {
+	// 		upsample.push(Array(group_sizes[p_index]).fill(products[p_index]));
+	// 	}
+	// 	this.product_classes = ldShuffle(this.product_classes);
+
+	// 	return upsample;
+	// }
+
+	// async populateShelves() {
+	// 	const fitted_product_collection = await this.generateProducts();
+	// 	const amount_per_shelf = Math.ceil(fitted_product_collection.length / this.items.length);
+	// 	for (let shelf in this.items) {
+	// 		this.items[shelf].clear();
+	// 		let groups_to_push = fitted_product_collection.splice(0, amount_per_shelf);
+	// 		for (const group of groups_to_push) {
+	// 			this.items[shelf].items = this.items[shelf].items.concat(group);
+	// 		}
+	// 	}
+	// }
+
+	async generateBoundedProducts() {
+
+		// if shelf dimensions haven't already been resolved, do this now
+		// clear the current products out here too
+		for (let shelf_index in this.items) {
+			if (typeof this.items[shelf_index].dimensions == "undefined") {
+				this.items[shelf_index].dimensions = await imageDimensions(this.items[shelf_index].URI);
+				this.items[shelf_index].resolved_dimensions = {
+					x: this.items[shelf_index].dimensions.x,
+					y: this.dimensions.y / this.items.length
+				};
+			}
+
+			this.items[shelf_index].item_groups.splice(0);
 		}
 
-		const widest = (() => {
-			let out = products[0];
-			for (const product of products) {
-				if (product.resolved_width > out.resolved_width) {
-					out = product;
+
+		for (let product of this.product_classes) {
+			if (typeof product.dimensions == "undefined") {
+				product.dimensions = await imageDimensions(product.URI);
+			}
+		}
+		// if product dimensions haven't already been resolved, do this now
+		const scale_factor = this.tallestProduct().dimensions.y / this.items[0].resolved_dimensions.y; // how much we had to scale the tallest product to fit
+		for (let product of this.product_classes) {
+			product.resolved_dimensions = {
+				x: product.dimensions.x / scale_factor,
+				y: product.dimensions.y / scale_factor
+			};
+		}
+
+		console.log(this.product_classes);
+
+		let product_groups = [];
+		const groupsPerShelf = () => {
+			return product_groups.length / this.items.length;
+		};
+		const groupProductWidth = (group) => {
+			return group[0].resolved_dimensions.x;
+		}
+		const groupWidth = (group) => {
+			let cumulative_width = 0;
+			for (let product of group) {
+				cumulative_width += product.resolved_dimensions.x;
+			}
+			return cumulative_width;
+		};
+
+		// generate mandatory products
+		for (let product of this.product_classes) {
+			// products with a minimum count are considered mandatory
+			// push these products within the range of min to max
+			// if max is undefined, only min will be added in this stage
+			if (typeof product.counts != "undefined" && typeof product.counts.min != "undefined") {
+				const max = (typeof product.counts.max != "undefined") ? product.counts.max : product.counts.min;
+				const count = Math.floor(Math.random() * (max - product.counts.min + 1)) + product.counts.min; // inclusive random range from min to max
+				product_groups.push(Array(count).fill(new Product(product)));
+			}
+		}
+
+		// distribute what we have randomly between the shelves
+		// do this by attempting to push to shelves in a random order
+		// if no shelf could accomodate the group, this is considered a fail case (not all requirements in the config could be met)
+		const tryRandomPushToShelves = (p_group) => {
+			let target_shelves = [];
+			for (let i = 0; i < this.items.length; ++i) {
+				target_shelves.push(i);
+			}
+			target_shelves = ldShuffle(target_shelves);
+			for (let shelf_index of target_shelves) {
+				if (this.items[shelf_index].dimensions.x >= groupWidth(p_group)) {
+					this.items[shelf_index].item_groups.push(p_group);
+					return true;
+				}
+			}
+			return false;
+		}
+
+		for (let p_group of product_groups) {
+			if (tryRandomPushToShelves(p_group) === false) {
+				throw new Error("Shelf configuration cannot accomodate the minimum required products");
+			}
+		}
+
+		// [x] now essential products are placed, we take measurments to determine how much room we have left to work with
+		// [x] leftover room is first filled with one of each unplaced products (chosen randomly)
+		// [x] if there is still room, we now randomly upscale any group which is below its maximum, if it has one defined, and on the condition that there is room
+
+		// grab the list of product types we haven't used, make an array of groups size 1; upscale later
+
+		let optional_product_groups = (() => {
+			let out = [];
+			for (let product of this.product_classes) {
+				// check first for the counts field, if this exists, then check for the minimum count - products that fail both are optional and haven't been placed
+				if (typeof product.counts == "undefined" || typeof product.counts.min == "undefined") {
+					out.push([new Product(product)]);
 				}
 			}
 			return out;
 		})();
 
-		const slimmest = (() => {
-			let out = products[0];
-			for (const product of products) {
-				if (product.resolved_width < out.resolved_width) {
-					out = product;
+
+		const groups_per_shelf = Math.ceil((product_groups.length + optional_product_groups.length) / this.items.length);
+		// raise the groups per shelf so groups are evenly distributed (bias towards upper shelves)
+		for (let shelf_index in this.items) {
+			if (groups_per_shelf - this.items[shelf_index].item_groups.length > 0) {
+				this.items[shelf_index].item_groups = this.items[shelf_index].item_groups.concat(optional_product_groups.splice(0, groups_per_shelf - this.items[shelf_index].item_groups.length));
+				let cumulative_width = (groups) => {
+					let cumulative_width = 0;
+					for (const pg of groups) {
+						cumulative_width += groupWidth(pg);
+					}
+					return cumulative_width;
+				};
+				if (cumulative_width(this.items[shelf_index].item_groups) > this.items[shelf_index].dimensions.x) {
+					const compareGroupProductWidth = (l, r) => {
+						if (l[0].dimensions.x < r[0].dimensions.x) {
+							return -1;
+						}
+						if (l[0].dimensions.x > r[0].dimensions.x) {
+							return 1;
+						}
+						return 0;
+					};
+					let groups_by_width = this.items[shelf_index].item_groups.sort(compareGroupProductWidth);
+					console.warn(groups_by_width);
+					while (cumulative_width(groups_by_width) > this.items[shelf_index].dimensions.x) {
+						groups_by_width.pop();
+					}
+					this.items[shelf_index].item_groups = groups_by_width;
 				}
 			}
-			return out;
-		})();
-
-		const group_sizes = await (async () => {
-			let gs = [];
-
-			const allowed_width = (0.8 * total_space) / this.product_classes.length;
-
-			for (const product of products) {
-				gs.push(Math.round(allowed_width / product.resolved_width));
-			}
-			return gs;
-		})();
-
-		let upsample = [];
-		for (let p_index in products) {
-			upsample.push(Array(group_sizes[p_index]).fill(products[p_index]));
 		}
-		this.product_classes = ldShuffle(this.product_classes);
 
-		return upsample;
+		for (let shelf_index in this.items) {
+			let used_width = (() => {
+				let used_width = 0;
+				for (const p_group of this.items[shelf_index].item_groups) {
+					used_width += groupWidth(p_group);
+				}
+				return used_width;
+			})();
+
+			const remainingWidth = () => {
+				return this.items[shelf_index].resolved_dimensions.x - used_width;
+			};
+
+			const upscalableGroups = () => {
+				let upscalable_groups = [];
+				for (const p_group of this.items[shelf_index].item_groups) {
+					if (groupProductWidth(p_group) < remainingWidth()) {
+						if (typeof p_group[0].counts != "undefined" && typeof p_group[0].counts.max != "undefined") {
+							console.log('attempting to upscale a group with a counts.max property (' + p_group[0].name + ')');
+							if (p_group.length < p_group[0].counts.max) {
+								upscalable_groups.push(p_group);
+							}
+						} else {
+							upscalable_groups.push(p_group);
+						}
+					}
+				}
+				return upscalable_groups;
+			};
+
+
+
+			for (let upscalable_groups = upscalableGroups(); upscalable_groups.length != 0; upscalable_groups = upscalableGroups()) {
+				const rnd_group = Math.floor(Math.random() * upscalable_groups.length);
+				upscalable_groups[rnd_group].push(upscalable_groups[rnd_group][0]);
+				used_width += groupProductWidth(upscalable_groups[rnd_group]);
+			}
+
+			this.items[shelf_index].item_groups = ldShuffle(this.items[shelf_index].item_groups);
+		}
+
 	}
 
-	async populateShelves() {
-		const fitted_product_collection = await this.generateProducts();
-		const amount_per_shelf = Math.ceil(fitted_product_collection.length / this.items.length);
-		for (let shelf in this.items) {
-			this.items[shelf].clear();
-			let groups_to_push = fitted_product_collection.splice(0, amount_per_shelf);
-			for (const group of groups_to_push) {
-				this.items[shelf].items = this.items[shelf].items.concat(group);
-			}
-		}
-	}
+
 }
 
 
@@ -237,8 +392,8 @@ async function $asElement(e_item, tallest, rack) {
 	if (e_item instanceof Product) {
 		$DOM.addClass('product');
 		$DOM.attr('id', e_item.name);
-		const sf = (e_item.dim.y / tallest.height);
-		$DOM.css('flex-basis', e_item.resolved_width);
+		const sf = (e_item.dimensions.y / tallest.dimensions.y);
+		$DOM.css('flex-basis', e_item.resolved_dimensions.x);
 		$DOM.css('height', sf * 100 + '%');
 	} else if (e_item instanceof Shelf) {
 		$DOM.css('flex-direction', e_item.pack_from);
@@ -255,9 +410,11 @@ async function $asElement(e_item, tallest, rack) {
 
 async function $buildDOM(item, tallest, rack) {
 	let $DOM = await $asElement(item, tallest, rack);
-	if (Array.isArray(item.items)) {
-		for (let nested of item.items) {
-			$DOM.append(await $buildDOM(nested, tallest, rack));
+	if (Array.isArray(item.item_groups)) {
+		for (let p_group of item.item_groups) {
+			for (const product of p_group) {
+				$DOM.append(await $buildDOM(product, tallest, rack));
+			}
 		}
 	}
 	return $DOM;
@@ -296,5 +453,6 @@ export async function $newLayout($container_DOM, product_scale, rack, mouseover_
 
 	});
 
+	console.log($rack_DOM);
 	return $rack_DOM;
 }

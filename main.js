@@ -83,14 +83,12 @@ async function main($DOM, configuration, pause, pause_replacements) {
 					console.log("reconfigure");
 					$stimuli.empty();
 					$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack, configuration.mouseover_classes));
-					await rack.populateShelves();
+					await rack.generateBoundedProducts();
 				}
 			}
 		});
 
-		await rack.populateShelves();
-
-
+		await rack.generateBoundedProducts();
 
 		$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack, configuration.mouseover_classes));
 		$stimuli.hide();
@@ -125,8 +123,17 @@ async function main($DOM, configuration, pause, pause_replacements) {
 		click_info.product_type.clicked = $target.attr('id');
 
 		$target.addClass('clicked');
-		console.log(click_info);
-		(click_info.product_type.requested != click_info.product_type.clicked) ? $target.addClass('incorrect') : $target.addClass('correct');
+		let $overlay = $('<div></div>');
+		$overlay.css('position', 'absolute');
+		$overlay.css('top', '0');
+		$overlay.css('left', '0');
+		$overlay.css('height', '100%');
+		$overlay.css('width', '100%');
+		$overlay.css('filter', 'opacity(50%)');
+
+		(click_info.product_type.requested != click_info.product_type.clicked) ? $overlay.addClass('incorrect') : $overlay.addClass('correct');
+
+		$target.append($overlay);
 
 		timer.stop();
 		click_info.time_taken = timer.value();
@@ -135,7 +142,6 @@ async function main($DOM, configuration, pause, pause_replacements) {
 
 		if (configuration.repeat_behavior.triggers.wrong_answer) {
 			if (click_info.product_type.requested != click_info.product_type.clicked) {
-				console.log(click_info.product_type.requested + '!=' + click_info.product_type.clicked);
 				repeat = true;
 			}
 		}

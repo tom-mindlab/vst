@@ -12,6 +12,7 @@ class Product extends Item {
 		super(product_class.name, product_class.URI);
 		this.dimensions = product_class.dimensions;
 		this.resolved_dimensions = product_class.resolved_dimensions;
+		this.resolved_dimensions.x += 20;
 		this.counts = product_class.counts;
 	}
 }

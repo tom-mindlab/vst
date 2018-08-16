@@ -33,7 +33,6 @@ class Shelf extends Item {
 	constructor(json_shelf_obj, overflow_callback) {
 		super(json_shelf_obj.name, json_shelf_obj.URI);
 		this.overflow_callback = overflow_callback;
-		this.pack_from = json_shelf_obj.pack_from;
 		this.bounds = json_shelf_obj.bounds;
 		this.item_groups = [];
 	}
@@ -331,7 +330,6 @@ async function $asElement(e_item, tallest, rack) {
 		$DOM.css('flex-basis', e_item.resolved_dimensions.x);
 		$DOM.css('height', sf * 100 + '%');
 	} else if (e_item instanceof Shelf) {
-		$DOM.css('flex-direction', e_item.pack_from);
 		$DOM.css('height', rack.dimensions.y / rack.items.length);
 		$DOM.css('padding-top', e_item.bounds.top);
 		$DOM.css('padding-bottom', e_item.bounds.bottom);

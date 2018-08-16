@@ -77,8 +77,8 @@
                 "continue_button": "Continue"
             },
             "intro": {
-                "message": "AAAAAAAAAA",
-                "continue_button": "YEET",
+                "message": "Example bulky/large products",
+                "continue_button": "Start",
                 "continue_loading_button": "Loading images, please wait."
             }
         },

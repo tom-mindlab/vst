@@ -123,8 +123,8 @@
                 "continue_button": "Continue"
             },
             "intro": {
-                "message": "AAAAAAAAAA",
-                "continue_button": "YEET",
+                "message": "Example double shelf, many products",
+                "continue_button": "Begin",
                 "continue_loading_button": "Loading images, please wait."
             }
         },

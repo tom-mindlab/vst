@@ -64,8 +64,8 @@
                 "continue_button": "Continue"
             },
             "intro": {
-                "message": "AAAAAAAAAA",
-                "continue_button": "YEET",
+                "message": "Single shelf example",
+                "continue_button": "Begin",
                 "continue_loading_button": "Loading images, please wait."
             }
         },

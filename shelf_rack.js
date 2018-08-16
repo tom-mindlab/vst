@@ -149,8 +149,11 @@ export class ShelfRack {
 			// if max is undefined, only min will be added in this stage
 			if (typeof product.counts != "undefined" && typeof product.counts.min != "undefined") {
 				const max = (typeof product.counts.max != "undefined") ? product.counts.max : product.counts.min;
+				if (max < product.counts.min) {
+					throw new Error("Minimum product count is higher than maximum");
+				}
 				const count = Math.floor(Math.random() * (max - product.counts.min + 1)) + product.counts.min; // inclusive random range from min to max
-				product_groups.push(Array(count).fill(new Product(product)));
+				product_groups.push(Array(product.counts.min).fill(new Product(product)));
 			}
 		}
 

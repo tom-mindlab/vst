@@ -61,6 +61,7 @@ export class ShelfRack {
 		let largest_product = this.product_classes[0];
 		for (const product of this.product_classes) {
 			if (product.dimensions.y > largest_product.dimensions.y) {
+
 				largest_product = product;
 			}
 		}

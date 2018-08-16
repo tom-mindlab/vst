@@ -66,6 +66,10 @@
                 "counts": {
                     "min": 1
                 }
+            },
+            {
+                "name": "mountain",
+                "URI": "https://i.imgur.com/lCL0UPL.png"
             }
         ]
     },

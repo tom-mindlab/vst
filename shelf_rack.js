@@ -3,16 +3,16 @@ import ldShuffle from 'lodash/shuffle'
 import ldCloneDeep from 'lodash/cloneDeep'
 
 class Item {
-	constructor(name, URI) {
+	constructor(name, path) {
 		this.name = name;
-		this.URI = URI;
+		this.path = path;
 	}
 }
 
 class Product extends Item {
 	constructor(json_product_class) {
 		const product_class = ldCloneDeep(json_product_class);
-		super(product_class.name, product_class.URI);
+		super(product_class.name, product_class.path);
 		this.dimensions = product_class.dimensions;
 		this.resolved_dimensions = product_class.resolved_dimensions;
 		this.resolved_dimensions.x += 24;
@@ -34,7 +34,7 @@ const OVERFLOW_CALLBACKS = {
 class Shelf extends Item {
 	constructor(json_shelf_obj, overflow_callback) {
 		const shelf_class = ldCloneDeep(json_shelf_obj);
-		super(shelf_class.name, shelf_class.URI);
+		super(shelf_class.name, shelf_class.path);
 		this.overflow_callback = overflow_callback;
 		this.bounds = shelf_class.bounds;
 		this.item_groups = [];
@@ -101,7 +101,7 @@ export class ShelfRack {
 		// clear the current products out here too
 		for (let shelf of this.items) {
 			if (typeof shelf.dimensions == "undefined") {
-				shelf.dimensions = await imageDimensions(shelf.URI);
+				shelf.dimensions = await imageDimensions(shelf.path);
 				shelf.resolved_dimensions = {
 					x: shelf.dimensions.x,
 					y: this.dimensions.y / this.items.length
@@ -113,7 +113,7 @@ export class ShelfRack {
 
 		for (let product of this.product_classes) {
 			if (typeof product.dimensions == "undefined") {
-				product.dimensions = await imageDimensions(product.URI);
+				product.dimensions = await imageDimensions(product.path);
 			}
 		}
 		// if product dimensions haven't already been resolved, do this now
@@ -299,22 +299,22 @@ function parseItems(json_obj, item_arr, shelf_types_arr) {
 	return item_arr;
 }
 
-function loadImage(URI) {
+function loadImage(path) {
 	return new Promise(res => {
 		let img = new Image();
 		img.addEventListener('load', () => res(img));
-		img.src = URI;
+		img.src = path;
 	})
 }
 
-async function imageDimensions(URI) {
-	let img = await loadImage(URI);
+async function imageDimensions(path) {
+	let img = await loadImage(path);
 	return { x: img.width, y: img.height };
 }
 
 async function $asElement(e_item, tallest, rack) {
 	let $DOM = $('<div></div>');
-	$DOM.css('background-image', 'url(' + e_item.URI + ')');
+	$DOM.css('background-image', 'url(' + e_item.path + ')');
 	$DOM.css('background-position', 'center');
 
 	if (e_item instanceof Product) {

@@ -25,13 +25,13 @@
                     "top": 1,
                     "bottom": 5
                 },
-                "URI": "https://i.imgur.com/Pi8qnDh.png"
+                "path": "https://i.imgur.com/Pi8qnDh.png"
             }
         ],
         "products": [
             {
                 "name": "Stolichnaya",
-                "URI": "https://i.imgur.com/4iPEhpK.png",
+                "path": "https://i.imgur.com/4iPEhpK.png",
                 "counts": {
                     "min": 1,
                     "max": 3
@@ -39,15 +39,15 @@
             },
             {
                 "name": "New Amsterdam",
-                "URI": "https://i.imgur.com/cWDQzwH.png"
+                "path": "https://i.imgur.com/cWDQzwH.png"
             },
             {
                 "name": "Skyy",
-                "URI": "https://i.imgur.com/U0hM1Pw.png"
+                "path": "https://i.imgur.com/U0hM1Pw.png"
             },
             {
                 "name": "dl",
-                "URI": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Direct%20Line/stim/logos/prepped/directline-logo.png"
+                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Direct%20Line/stim/logos/prepped/directline-logo.png"
             }
         ]
     },

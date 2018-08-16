@@ -96,7 +96,7 @@ async function main($DOM, configuration, pause, pause_replacements) {
 
 		let requested_product = $('.product').eq(Math.floor(Math.random() * $('.product').length)).attr('id');
 
-		await showScreen(pause, Object.assign(pause_replacements, { message: ('Please click on the ' + requested_product) }));
+		await showScreen(pause, Object.assign({}, pause_replacements, { message: ('Please click on the ' + requested_product) }));
 
 		$instruction.text('Please click on the ' + requested_product);
 		$stimuli.fadeIn(configuration.timer.reset_duration);

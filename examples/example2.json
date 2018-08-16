@@ -42,10 +42,6 @@
                 "URI": "https://i.imgur.com/cWDQzwH.png"
             },
             {
-                "name": "Pinnacle",
-                "URI": "https://i.imgur.com/GDOPvqL.png"
-            },
-            {
                 "name": "Skyy",
                 "URI": "https://i.imgur.com/U0hM1Pw.png"
             },
@@ -70,6 +66,10 @@
             {
                 "name": "mountain",
                 "URI": "https://i.imgur.com/lCL0UPL.png"
+            },
+            {
+                "name": "dl",
+                "URI": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Direct%20Line/stim/logos/prepped/directline-logo.png"
             }
         ]
     },
@@ -79,12 +79,13 @@
     },
     "layout": [
         {
-            "name": "supermarket",
-            "pack_from": "row"
+            "name": "supermarket"
         },
         {
-            "name": "supermarket",
-            "pack_from": "row"
+            "name": "supermarket"
+        },
+        {
+            "name": "supermarket"
         }
     ],
     "language_options": {

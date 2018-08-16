@@ -1,5 +1,6 @@
 // cant be bothered to implement fisher-yates
 import ldShuffle from 'lodash/shuffle'
+import ldCloneDeep from 'lodash/cloneDeep'
 
 class Item {
 	constructor(name, URI) {
@@ -9,7 +10,8 @@ class Item {
 }
 
 class Product extends Item {
-	constructor(product_class) {
+	constructor(json_product_class) {
+		const product_class = ldCloneDeep(json_product_class);
 		super(product_class.name, product_class.URI);
 		this.dimensions = product_class.dimensions;
 		this.resolved_dimensions = product_class.resolved_dimensions;
@@ -31,9 +33,10 @@ const OVERFLOW_CALLBACKS = {
 
 class Shelf extends Item {
 	constructor(json_shelf_obj, overflow_callback) {
-		super(json_shelf_obj.name, json_shelf_obj.URI);
+		const shelf_class = ldCloneDeep(json_shelf_obj);
+		super(shelf_class.name, shelf_class.URI);
 		this.overflow_callback = overflow_callback;
-		this.bounds = json_shelf_obj.bounds;
+		this.bounds = shelf_class.bounds;
 		this.item_groups = [];
 	}
 
@@ -48,7 +51,9 @@ export class ShelfRack {
 			throw new Error('ShelfRack contains zero items');
 		}
 		this.product_info = product_obj;
-		this.items[0].bounds.bottom /= this.items.length;
+		for (let shelf of this.items) {
+			shelf.bounds.bottom /= this.items.length;
+		}
 		this.dimensions = dimensions;
 	}
 
@@ -69,7 +74,6 @@ export class ShelfRack {
 				smallest_product = product;
 			}
 		}
-		console.log(smallest_product);
 		return smallest_product;
 	}
 
@@ -116,6 +120,7 @@ export class ShelfRack {
 		}
 		// if product dimensions haven't already been resolved, do this now
 		const scale_factor = this.tallestProduct().dimensions.y / this.items[0].resolved_dimensions.y; // how much we had to scale the tallest product to fit
+		console.log(scale_factor);
 		for (let product of this.product_classes) {
 			product.resolved_dimensions = {
 				x: product.dimensions.x / scale_factor,
@@ -147,7 +152,6 @@ export class ShelfRack {
 			if (typeof product.counts != "undefined" && typeof product.counts.min != "undefined") {
 				const max = (typeof product.counts.max != "undefined") ? product.counts.max : product.counts.min;
 				const count = Math.floor(Math.random() * (max - product.counts.min + 1)) + product.counts.min; // inclusive random range from min to max
-				console.log('pushing ' + count + ' ' + product.name + 's');
 				product_groups.push(Array(count).fill(new Product(product)));
 			}
 		}
@@ -161,7 +165,6 @@ export class ShelfRack {
 				target_shelves.push(i);
 			}
 			target_shelves = ldShuffle(target_shelves);
-			console.log('ts: ' + target_shelves);
 			for (let shelf_index of target_shelves) {
 
 				let used_width = (rack) => {
@@ -173,9 +176,7 @@ export class ShelfRack {
 				};
 
 				if (remainingWidth(this.items[shelf_index], used_width(this)) >= groupWidth(p_group)) {
-					console.log(p_group[0].name + ' group was pushed to shelf ' + shelf_index);
 					this.items[shelf_index].item_groups.push(p_group);
-					console.log(this.items[shelf_index].item_groups);
 					return true;
 				}
 			}
@@ -187,11 +188,6 @@ export class ShelfRack {
 				throw new Error("Shelf configuration cannot accomodate the minimum required products");
 			}
 		}
-
-		for (const shelf of this.items) {
-			console.log(shelf);
-		}
-		console.log('==');
 
 		// [x] now essential products are placed, we take measurments to determine how much room we have left to work with
 		// [x] leftover room is first filled with one of each unplaced products (chosen randomly)
@@ -263,7 +259,7 @@ export class ShelfRack {
 				for (const p_group of shelf.item_groups) {
 					if (groupProductWidth(p_group) < remainingWidth(shelf, used_width)) {
 						if (typeof p_group[0].counts != "undefined" && typeof p_group[0].counts.max != "undefined") {
-							console.log('attempting to upscale a group with a counts.max property (' + p_group[0].name + ')');
+
 							if (p_group.length < p_group[0].counts.max) {
 								upscalable_groups.push(p_group);
 							}
@@ -299,8 +295,8 @@ function parseItems(json_obj, item_arr, shelf_types_arr) {
 			item_arr = parseItems(json_obj[i], item_arr, shelf_types_arr);
 		}
 	} else {
-		json_obj = Object.assign(json_obj, shelf_types_arr.find(item => item.name === json_obj.name));
-		item_arr.push(new Shelf(json_obj, OVERFLOW_CALLBACKS.FAIL));
+		const definition = Object.assign(json_obj, shelf_types_arr.find(item => item.name === json_obj.name));
+		item_arr.push(new Shelf(definition, OVERFLOW_CALLBACKS.FAIL));
 	}
 	return item_arr;
 }
@@ -386,6 +382,5 @@ export async function $newLayout($container_DOM, product_scale, rack, mouseover_
 
 	});
 
-	console.log($rack_DOM);
 	return $rack_DOM;
 }

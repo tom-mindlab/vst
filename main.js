@@ -77,10 +77,8 @@ async function main($DOM, configuration, pause, pause_replacements) {
 
 		timer.timeout(async () => {
 			pause_experiment(true);
-			console.log(configuration.repeat_behavior);
 			if (configuration.repeat_behavior.triggers.timeout === true) {
 				if (configuration.repeat_behavior.rearrange === true) {
-					console.log("reconfigure");
 					$stimuli.empty();
 					$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack, configuration.mouseover_classes));
 					await rack.generateBoundedProducts();
@@ -92,14 +90,12 @@ async function main($DOM, configuration, pause, pause_replacements) {
 
 		$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack, configuration.mouseover_classes));
 		$stimuli.hide();
-		console.log($stimuli);
 
 		// abstract this into the config
 		//let requested_product = rack.product_classes[Math.floor(Math.random() * rack.product_classes.length)].name;
 
 		let requested_product = $('.product').eq(Math.floor(Math.random() * $('.product').length)).attr('id');
 
-		console.warn(pause_replacements);
 		await showScreen(pause, Object.assign(pause_replacements, { message: ('Please click on the ' + requested_product) }));
 
 		$instruction.text('Please click on the ' + requested_product);

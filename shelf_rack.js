@@ -51,9 +51,6 @@ export class ShelfRack {
 			throw new Error('ShelfRack contains zero items');
 		}
 		this.product_info = product_obj;
-		for (let shelf of this.items) {
-			shelf.bounds.bottom /= this.items.length;
-		}
 		this.dimensions = dimensions;
 	}
 
@@ -328,8 +325,8 @@ async function $asElement(e_item, tallest, rack) {
 		$DOM.css('height', sf * 100 + '%');
 	} else if (e_item instanceof Shelf) {
 		$DOM.css('height', rack.dimensions.y / rack.items.length);
-		$DOM.css('padding-top', e_item.bounds.top);
-		$DOM.css('padding-bottom', e_item.bounds.bottom);
+		$DOM.css('padding-top', e_item.bounds.top / rack.items.length + '%');
+		$DOM.css('padding-bottom', e_item.bounds.bottom / rack.items.length + '%');
 		$DOM.addClass('shelf ' + e_item.name);
 	} else {
 		throw new TypeError('Expected shelf rack item');

@@ -62,7 +62,10 @@
             },
             {
                 "name": "wideboy",
-                "URI": "https://i.imgur.com/PZlfSES.png"
+                "URI": "https://i.imgur.com/PZlfSES.png",
+                "counts": {
+                    "min": 1
+                }
             }
         ]
     },

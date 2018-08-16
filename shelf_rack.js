@@ -1,3 +1,4 @@
+// cant be bothered to implement fisher-yates
 import ldShuffle from 'lodash/shuffle'
 
 class Item {
@@ -12,6 +13,7 @@ class Product extends Item {
 		super(product_class.name, product_class.URI);
 		this.dimensions = product_class.dimensions;
 		this.resolved_dimensions = product_class.resolved_dimensions;
+		this.resolved_dimensions.x += 24;
 		this.counts = product_class.counts;
 	}
 }
@@ -29,7 +31,6 @@ const OVERFLOW_CALLBACKS = {
 
 class Shelf extends Item {
 	constructor(json_shelf_obj, overflow_callback) {
-
 		super(json_shelf_obj.name, json_shelf_obj.URI);
 		this.overflow_callback = overflow_callback;
 		this.pack_from = json_shelf_obj.pack_from;
@@ -41,20 +42,14 @@ class Shelf extends Item {
 
 export class ShelfRack {
 	constructor(layout_arr, item_classes, product_obj, dimensions) {
-
 		this.product_classes = item_classes.products;
-
 		this.shelf_classes = item_classes.shelves;
-
 		this.items = parseItems(layout_arr, [], this.shelf_classes);
 		if (this.items.length === 0) {
 			throw new Error('ShelfRack contains zero items');
 		}
-
 		this.product_info = product_obj;
-
 		this.items[0].bounds.bottom /= this.items.length;
-
 		this.dimensions = dimensions;
 	}
 
@@ -99,98 +94,21 @@ export class ShelfRack {
 		return slimmest_product;
 	}
 
-	// yields a product object
-	// this generator will yield the same product from the list of products N times where
-	//		N = (target count of products) / (number of product types)
-	// e.g:
-	//		N = 20 / 4
-	//		  = 5
-	// (so N is just the size of the group for each product).
-	// After yielding the same product N times, it will then yield the next product in the list N times. After this, it will loop from the start.
-	// If
-	//		(target count of products) % (number of product types) != 0			(not cleanly divisible)
-	// then the remainder of that division is captured.
-	// The size of N for the products (starting at the back, moving up the array) in the product list will be increased by 1 and the
-	// remainder of the division from earlier will be decreased by 1 until the remainder is zero.
-	// By doing this, the leftover amount is spread as evenly as possible across the product list.
-	*genProduct(skip_to_next) {
-		let group_sizes = new Array(this.product_classes.length);
-		group_sizes.fill(Math.floor(this.product_info.count / this.product_classes.length));
-		for (let remainder = this.product_info.count - group_sizes.reduce((s, v) => { return s + v }); remainder > 0; --remainder) {
-			group_sizes[remainder]++;
-		}
-
-		while (true) {
-			for (let i = 0; i < this.product_classes.length; ++i) {
-				for (let j = 0; j < group_sizes[i]; ++j) {
-					yield this.product_classes[i];
-					if (skip_to_next === true) continue;
-				}
-			}
-		}
-	}
-
-	// async generateProducts() {
-	// 	let products = [];
-	// 	const shelf_height = this.dimensions.y / this.items.length;
-	// 	const total_space = this.dimensions.x * this.items.length;
-	// 	const tallest = await this.tallestProduct();
-
-	// 	for (const v of this.product_classes) {
-	// 		let new_item = new Product(v);
-	// 		new_item.dim = await imageDimensions(v.URI);
-	// 		new_item.resolved_width = new_item.dim.x * (shelf_height / tallest.height);
-	// 		products.push(new_item);
-	// 	}
-
-	// 	const group_sizes = await (async () => {
-	// 		let gs = [];
-
-	// 		const allowed_width = (0.8 * total_space) / this.product_classes.length;
-
-	// 		for (const product of products) {
-	// 			gs.push(Math.round(allowed_width / product.resolved_width));
-	// 		}
-	// 		return gs;
-	// 	})();
-
-	// 	let upsample = [];
-	// 	for (let p_index in products) {
-	// 		upsample.push(Array(group_sizes[p_index]).fill(products[p_index]));
-	// 	}
-	// 	this.product_classes = ldShuffle(this.product_classes);
-
-	// 	return upsample;
-	// }
-
-	// async populateShelves() {
-	// 	const fitted_product_collection = await this.generateProducts();
-	// 	const amount_per_shelf = Math.ceil(fitted_product_collection.length / this.items.length);
-	// 	for (let shelf in this.items) {
-	// 		this.items[shelf].clear();
-	// 		let groups_to_push = fitted_product_collection.splice(0, amount_per_shelf);
-	// 		for (const group of groups_to_push) {
-	// 			this.items[shelf].items = this.items[shelf].items.concat(group);
-	// 		}
-	// 	}
-	// }
-
 	async generateBoundedProducts() {
 
 		// if shelf dimensions haven't already been resolved, do this now
 		// clear the current products out here too
-		for (let shelf_index in this.items) {
-			if (typeof this.items[shelf_index].dimensions == "undefined") {
-				this.items[shelf_index].dimensions = await imageDimensions(this.items[shelf_index].URI);
-				this.items[shelf_index].resolved_dimensions = {
-					x: this.items[shelf_index].dimensions.x,
+		for (let shelf of this.items) {
+			if (typeof shelf.dimensions == "undefined") {
+				shelf.dimensions = await imageDimensions(shelf.URI);
+				shelf.resolved_dimensions = {
+					x: shelf.dimensions.x,
 					y: this.dimensions.y / this.items.length
 				};
 			}
 
-			this.items[shelf_index].item_groups.splice(0);
+			shelf.item_groups = [];
 		}
-
 
 		for (let product of this.product_classes) {
 			if (typeof product.dimensions == "undefined") {
@@ -206,12 +124,7 @@ export class ShelfRack {
 			};
 		}
 
-		console.log(this.product_classes);
-
 		let product_groups = [];
-		const groupsPerShelf = () => {
-			return product_groups.length / this.items.length;
-		};
 		const groupProductWidth = (group) => {
 			return group[0].resolved_dimensions.x;
 		}
@@ -223,6 +136,10 @@ export class ShelfRack {
 			return cumulative_width;
 		};
 
+		const remainingWidth = (shelf, used_width) => {
+			return shelf.resolved_dimensions.x - used_width;
+		};
+
 		// generate mandatory products
 		for (let product of this.product_classes) {
 			// products with a minimum count are considered mandatory
@@ -231,6 +148,7 @@ export class ShelfRack {
 			if (typeof product.counts != "undefined" && typeof product.counts.min != "undefined") {
 				const max = (typeof product.counts.max != "undefined") ? product.counts.max : product.counts.min;
 				const count = Math.floor(Math.random() * (max - product.counts.min + 1)) + product.counts.min; // inclusive random range from min to max
+				console.log('pushing ' + count + ' ' + product.name + 's');
 				product_groups.push(Array(count).fill(new Product(product)));
 			}
 		}
@@ -244,9 +162,21 @@ export class ShelfRack {
 				target_shelves.push(i);
 			}
 			target_shelves = ldShuffle(target_shelves);
+			console.log('ts: ' + target_shelves);
 			for (let shelf_index of target_shelves) {
-				if (this.items[shelf_index].dimensions.x >= groupWidth(p_group)) {
+
+				let used_width = (rack) => {
+					let used_width = 0;
+					for (const p_group of rack.items[shelf_index].item_groups) {
+						used_width += groupWidth(p_group);
+					}
+					return used_width;
+				};
+
+				if (remainingWidth(this.items[shelf_index], used_width(this)) >= groupWidth(p_group)) {
+					console.log(p_group[0].name + ' group was pushed to shelf ' + shelf_index);
 					this.items[shelf_index].item_groups.push(p_group);
+					console.log(this.items[shelf_index].item_groups);
 					return true;
 				}
 			}
@@ -258,6 +188,11 @@ export class ShelfRack {
 				throw new Error("Shelf configuration cannot accomodate the minimum required products");
 			}
 		}
+
+		for (const shelf of this.items) {
+			console.log(shelf);
+		}
+		console.log('==');
 
 		// [x] now essential products are placed, we take measurments to determine how much room we have left to work with
 		// [x] leftover room is first filled with one of each unplaced products (chosen randomly)
@@ -275,7 +210,6 @@ export class ShelfRack {
 			}
 			return out;
 		})();
-
 
 		const groups_per_shelf = Math.ceil((product_groups.length + optional_product_groups.length) / this.items.length);
 		// raise the groups per shelf so groups are evenly distributed (bias towards upper shelves)
@@ -299,33 +233,36 @@ export class ShelfRack {
 						}
 						return 0;
 					};
+
+					// remove groups in order of size so long as the width of all groups exceeds the shelves width
+					// a group may only be removed if it is an optional group
 					let groups_by_width = this.items[shelf_index].item_groups.sort(compareGroupProductWidth);
-					console.warn(groups_by_width);
 					while (cumulative_width(groups_by_width) > this.items[shelf_index].dimensions.x) {
-						groups_by_width.pop();
+						for (let [g_idex, group] of Object.entries(groups_by_width)) {
+							if (typeof group[0].counts == "undefined" || typeof group[0].counts.min == "undefined") {
+								groups_by_width.splice(g_idex, 1);
+								break;
+							}
+						}
 					}
 					this.items[shelf_index].item_groups = groups_by_width;
 				}
 			}
 		}
 
-		for (let shelf_index in this.items) {
+		for (let shelf of this.items) {
 			let used_width = (() => {
 				let used_width = 0;
-				for (const p_group of this.items[shelf_index].item_groups) {
+				for (const p_group of shelf.item_groups) {
 					used_width += groupWidth(p_group);
 				}
 				return used_width;
 			})();
 
-			const remainingWidth = () => {
-				return this.items[shelf_index].resolved_dimensions.x - used_width;
-			};
-
 			const upscalableGroups = () => {
 				let upscalable_groups = [];
-				for (const p_group of this.items[shelf_index].item_groups) {
-					if (groupProductWidth(p_group) < remainingWidth()) {
+				for (const p_group of shelf.item_groups) {
+					if (groupProductWidth(p_group) < remainingWidth(shelf, used_width)) {
 						if (typeof p_group[0].counts != "undefined" && typeof p_group[0].counts.max != "undefined") {
 							console.log('attempting to upscale a group with a counts.max property (' + p_group[0].name + ')');
 							if (p_group.length < p_group[0].counts.max) {
@@ -339,15 +276,13 @@ export class ShelfRack {
 				return upscalable_groups;
 			};
 
-
-
 			for (let upscalable_groups = upscalableGroups(); upscalable_groups.length != 0; upscalable_groups = upscalableGroups()) {
 				const rnd_group = Math.floor(Math.random() * upscalable_groups.length);
 				upscalable_groups[rnd_group].push(upscalable_groups[rnd_group][0]);
 				used_width += groupProductWidth(upscalable_groups[rnd_group]);
 			}
 
-			this.items[shelf_index].item_groups = ldShuffle(this.items[shelf_index].item_groups);
+			shelf.item_groups = ldShuffle(shelf.item_groups);
 		}
 
 	}

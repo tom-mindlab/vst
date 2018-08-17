@@ -14,44 +14,32 @@
         "rearrange": true,
         "continue_at": 2
     },
-    "item_classes": {
-        "shelves": [
-            {
-                "name": "supermarket",
-                "bounds": {
-                    "top": 1,
-                    "bottom": 5
-                },
-                "path": "https://i.imgur.com/Pi8qnDh.png"
+    "product_classes": [
+        {
+            "name": "Stolichnaya",
+            "path": "https://i.imgur.com/4iPEhpK.png",
+            "counts": {
+                "min": 1,
+                "max": 3
             }
-        ],
-        "products": [
-            {
-                "name": "Stolichnaya",
-                "path": "https://i.imgur.com/4iPEhpK.png",
-                "counts": {
-                    "min": 1,
-                    "max": 3
-                }
-            },
-            {
-                "name": "Budweiser",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Budweiser.png"
-            },
-            {
-                "name": "New Amsterdam",
-                "path": "https://i.imgur.com/cWDQzwH.png"
-            },
-            {
-                "name": "Skyy",
-                "path": "https://i.imgur.com/U0hM1Pw.png"
-            },
-            {
-                "name": "JustRol - All Butter",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Big%20Fixture%20-%20Jus%20Rol/Stim/M4M/jusrol_m4m_allbutter.png"
-            }
-        ]
-    },
+        },
+        {
+            "name": "Budweiser",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Budweiser.png"
+        },
+        {
+            "name": "New Amsterdam",
+            "path": "https://i.imgur.com/cWDQzwH.png"
+        },
+        {
+            "name": "Skyy",
+            "path": "https://i.imgur.com/U0hM1Pw.png"
+        },
+        {
+            "name": "JustRol - All Butter",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Big%20Fixture%20-%20Jus%20Rol/Stim/M4M/jusrol_m4m_allbutter.png"
+        }
+    ],
     "layout": [
         {
             "name": "supermarket"
@@ -68,8 +56,7 @@
             },
             "intro": {
                 "message": "Example mixed/weird shapes",
-                "continue_button": "Go",
-                "continue_loading_button": "Loading images, please wait."
+                "continue_button": "Go"
             }
         },
         "title": {

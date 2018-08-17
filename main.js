@@ -3,6 +3,8 @@ import { screen, utils, controls } from 'wombat';
 import template from './visual-search-t.html';
 import languages from './lang.json';
 
+
+import shelf_classes from './shelf_classes.json';
 import { ShelfRack } from './shelf_rack';
 import { $newLayout } from './shelf_rack';
 
@@ -41,7 +43,7 @@ async function main($DOM, configuration, pause, pause_replacements) {
 		x: $DOM.width(),
 		y: $DOM.height()
 	}
-	let rack = new ShelfRack(configuration.layout, configuration.item_classes, rack_dimensions);
+	let rack = new ShelfRack(configuration.layout, { shelves: shelf_classes.shelves, products: configuration.product_classes }, rack_dimensions);
 	console.log(rack);
 	let click_data = [];
 

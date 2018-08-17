@@ -17,49 +17,37 @@
         "new_target": true,
         "continue_at": 0
     },
-    "item_classes": {
-        "shelves": [
-            {
-                "name": "supermarket",
-                "bounds": {
-                    "top": 1,
-                    "bottom": 5
-                },
-                "path": "https://i.imgur.com/Pi8qnDh.png"
+    "product_classes": [
+        {
+            "name": "Stolichnaya",
+            "path": "https://i.imgur.com/4iPEhpK.png",
+            "counts": {
+                "min": 1,
+                "max": 3
             }
-        ],
-        "products": [
-            {
-                "name": "Stolichnaya",
-                "path": "https://i.imgur.com/4iPEhpK.png",
-                "counts": {
-                    "min": 1,
-                    "max": 3
-                }
-            },
-            {
-                "name": "New Amsterdam",
-                "path": "https://i.imgur.com/cWDQzwH.png",
-                "counts": {
-                    "max": 2
-                }
-            },
-            {
-                "name": "Skyy",
-                "path": "https://i.imgur.com/U0hM1Pw.png",
-                "counts": {
-                    "max": 2
-                }
-            },
-            {
-                "name": "Pinnacle",
-                "path": "https://i.imgur.com/GDOPvqL.png",
-                "counts": {
-                    "max": 2
-                }
+        },
+        {
+            "name": "New Amsterdam",
+            "path": "https://i.imgur.com/cWDQzwH.png",
+            "counts": {
+                "max": 2
             }
-        ]
-    },
+        },
+        {
+            "name": "Skyy",
+            "path": "https://i.imgur.com/U0hM1Pw.png",
+            "counts": {
+                "max": 2
+            }
+        },
+        {
+            "name": "Pinnacle",
+            "path": "https://i.imgur.com/GDOPvqL.png",
+            "counts": {
+                "max": 2
+            }
+        }
+    ],
     "layout": [
         {
             "name": "supermarket"
@@ -76,8 +64,7 @@
             },
             "intro": {
                 "message": "AAAAAAAAAA",
-                "continue_button": "YEET",
-                "continue_loading_button": "Loading images, please wait."
+                "continue_button": "YEET"
             }
         },
         "title": {

@@ -16,94 +16,82 @@
         "rearrange": true,
         "continue_at": 2
     },
-    "item_classes": {
-        "shelves": [
-            {
-                "name": "supermarket",
-                "bounds": {
-                    "top": 1,
-                    "bottom": 5
-                },
-                "path": "https://i.imgur.com/Pi8qnDh.png"
+    "product_classes": [
+        {
+            "name": "Stolichnaya",
+            "path": "https://i.imgur.com/4iPEhpK.png",
+            "counts": {
+                "min": 1,
+                "max": 3
             }
-        ],
-        "products": [
-            {
-                "name": "Stolichnaya",
-                "path": "https://i.imgur.com/4iPEhpK.png",
-                "counts": {
-                    "min": 1,
-                    "max": 3
-                }
-            },
-            {
-                "name": "New Amsterdam",
-                "path": "https://i.imgur.com/cWDQzwH.png"
-            },
-            {
-                "name": "Skyy",
-                "path": "https://i.imgur.com/U0hM1Pw.png",
-                "counts": {
-                    "min": 4
-                }
-            },
-            {
-                "name": "Grey Goose",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_GreyGooseCitron.png",
-                "counts": {
-                    "min": 3,
-                    "max": 4
-                }
-            },
-            {
-                "name": "Smiroff Citrus",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_SmirnoffCitrus.png",
-                "counts": {
-                    "min": 2,
-                    "max": 5
-                }
-            },
-            {
-                "name": "Skyy Citrus",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_SkyyCitrus.png",
-                "counts": {
-                    "min": 2,
-                    "max": 5
-                }
-            },
-            {
-                "name": "Svedka Citrus",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_SvedkaCitrus.png",
-                "counts": {
-                    "min": 2,
-                    "max": 5
-                }
-            },
-            {
-                "name": "Crop Meyer Lemon",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_CropMeyerLemon.png",
-                "counts": {
-                    "min": 2,
-                    "max": 5
-                }
-            },
-            {
-                "name": "JustRol - All Butter",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Big%20Fixture%20-%20Jus%20Rol/Stim/M4M/jusrol_m4m_allbutter.png"
-            },
-            {
-                "name": "JustRol - Puffblock",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Big%20Fixture%20-%20Jus%20Rol/Stim/M4M/jusrol_m4m_puffblock.png",
-                "counts": {
-                    "min": 1
-                }
-            },
-            {
-                "name": "JustRol - Puffsheet",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Big%20Fixture%20-%20Jus%20Rol/Stim/M4M/jusrol_m4m_puffsheet.png"
+        },
+        {
+            "name": "New Amsterdam",
+            "path": "https://i.imgur.com/cWDQzwH.png"
+        },
+        {
+            "name": "Skyy",
+            "path": "https://i.imgur.com/U0hM1Pw.png",
+            "counts": {
+                "min": 4
             }
-        ]
-    },
+        },
+        {
+            "name": "Grey Goose",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_GreyGooseCitron.png",
+            "counts": {
+                "min": 3,
+                "max": 4
+            }
+        },
+        {
+            "name": "Smiroff Citrus",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_SmirnoffCitrus.png",
+            "counts": {
+                "min": 2,
+                "max": 5
+            }
+        },
+        {
+            "name": "Skyy Citrus",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_SkyyCitrus.png",
+            "counts": {
+                "min": 2,
+                "max": 5
+            }
+        },
+        {
+            "name": "Svedka Citrus",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_SvedkaCitrus.png",
+            "counts": {
+                "min": 2,
+                "max": 5
+            }
+        },
+        {
+            "name": "Crop Meyer Lemon",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_CropMeyerLemon.png",
+            "counts": {
+                "min": 2,
+                "max": 5
+            }
+        },
+        {
+            "name": "JustRol - All Butter",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Big%20Fixture%20-%20Jus%20Rol/Stim/M4M/jusrol_m4m_allbutter.png"
+        },
+        {
+            "name": "JustRol - Puffblock",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Big%20Fixture%20-%20Jus%20Rol/Stim/M4M/jusrol_m4m_puffblock.png",
+            "counts": {
+                "min": 1
+            }
+        },
+        {
+            "name": "JustRol - Puffsheet",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Big%20Fixture%20-%20Jus%20Rol/Stim/M4M/jusrol_m4m_puffsheet.png"
+        }
+    ],
     "layout": [
         {
             "name": "supermarket"
@@ -120,8 +108,7 @@
             },
             "intro": {
                 "message": "Example double shelf, many products",
-                "continue_button": "Begin",
-                "continue_loading_button": "Loading images, please wait."
+                "continue_button": "Begin"
             }
         },
         "title": {

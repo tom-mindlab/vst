@@ -14,50 +14,38 @@
         "rearrange": true,
         "continue_at": 2
     },
-    "item_classes": {
-        "shelves": [
-            {
-                "name": "supermarket",
-                "bounds": {
-                    "top": 1,
-                    "bottom": 5
-                },
-                "path": "https://i.imgur.com/Pi8qnDh.png"
+    "product_classes": [
+        {
+            "name": "Guinness",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Guinness.png",
+            "counts": {
+                "min": 2
             }
-        ],
-        "products": [
-            {
-                "name": "Guinness",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Guinness.png",
-                "counts": {
-                    "min": 2
-                }
-            },
-            {
-                "name": "Budweiser",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Budweiser.png"
-            },
-            {
-                "name": "Carlsberg",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Carlsberg.png",
-                "counts": {
-                    "min": 2
-                }
-            },
-            {
-                "name": "Corona",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Corona.png"
-            },
-            {
-                "name": "Heineken",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Heineken.png"
-            },
-            {
-                "name": "Peroni",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Peroni.png"
+        },
+        {
+            "name": "Budweiser",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Budweiser.png"
+        },
+        {
+            "name": "Carlsberg",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Carlsberg.png",
+            "counts": {
+                "min": 2
             }
-        ]
-    },
+        },
+        {
+            "name": "Corona",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Corona.png"
+        },
+        {
+            "name": "Heineken",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Heineken.png"
+        },
+        {
+            "name": "Peroni",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Peroni.png"
+        }
+    ],
     "layout": [
         {
             "name": "supermarket"
@@ -74,8 +62,7 @@
             },
             "intro": {
                 "message": "Example bulky/large products",
-                "continue_button": "Start",
-                "continue_loading_button": "Loading images, please wait."
+                "continue_button": "Start"
             }
         },
         "title": {

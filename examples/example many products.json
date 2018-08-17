@@ -104,10 +104,6 @@
             }
         ]
     },
-    "product_info": {
-        "count": 30,
-        "scale": 1
-    },
     "layout": [
         {
             "name": "supermarket"

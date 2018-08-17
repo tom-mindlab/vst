@@ -43,14 +43,13 @@ class Shelf extends Item {
 }
 
 export class ShelfRack {
-	constructor(layout_arr, item_classes, product_obj, dimensions) {
+	constructor(layout_arr, item_classes, dimensions) {
 		this.product_classes = item_classes.products;
 		this.shelf_classes = item_classes.shelves;
 		this.items = parseItems(layout_arr, [], this.shelf_classes);
 		if (this.items.length === 0) {
 			throw new Error('ShelfRack contains zero items');
 		}
-		this.product_info = product_obj;
 		this.dimensions = dimensions;
 	}
 
@@ -363,7 +362,7 @@ async function $buildDOM(item, tallest, rack) {
 // desc:
 //		generates a DOM for a given shelf rack layout, using the input $DOM as a base
 //		returns a completed DOM in the <div class="rack"><div class="shelf ...">... style
-export async function $newLayout($container_DOM, product_scale, rack, mouseover_classes) {
+export async function $newLayout($container_DOM, rack, mouseover_classes) {
 	let $rack_DOM = $container_DOM;
 	for (let item of rack.items) {
 

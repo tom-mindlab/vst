@@ -5,7 +5,7 @@
         "highlight"
     ],
     "timer": {
-        "duration": 80000,
+        "duration": 3000,
         "reset_duration": 300
     },
     "repeat_behavior": {
@@ -14,8 +14,8 @@
             "timeout": true
         },
         "rearrange": true,
-        "new_target": false,
-        "continue_at": 2
+        "new_target": true,
+        "continue_at": 0
     },
     "item_classes": {
         "shelves": [
@@ -39,21 +39,26 @@
             },
             {
                 "name": "New Amsterdam",
-                "path": "https://i.imgur.com/cWDQzwH.png"
+                "path": "https://i.imgur.com/cWDQzwH.png",
+                "counts": {
+                    "max": 2
+                }
             },
             {
                 "name": "Skyy",
-                "path": "https://i.imgur.com/U0hM1Pw.png"
+                "path": "https://i.imgur.com/U0hM1Pw.png",
+                "counts": {
+                    "max": 2
+                }
             },
             {
-                "name": "dl",
-                "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Direct%20Line/stim/logos/prepped/directline-logo.png"
+                "name": "Pinnacle",
+                "path": "https://i.imgur.com/GDOPvqL.png",
+                "counts": {
+                    "max": 2
+                }
             }
         ]
-    },
-    "product_info": {
-        "count": 30,
-        "scale": 1
     },
     "layout": [
         {
@@ -77,7 +82,7 @@
         },
         "title": {
             "header": "Visual search",
-            "message": "Click the requested image"
+            "message": "Click the requested image."
         }
     }
 }

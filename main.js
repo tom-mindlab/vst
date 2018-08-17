@@ -3,15 +3,12 @@ import { screen, utils, controls } from 'wombat';
 import template from './visual-search-t.html';
 import languages from './lang.json';
 
-import ldExtend from 'lodash/extend';
-
 import { ShelfRack } from './shelf_rack';
 import { $newLayout } from './shelf_rack';
 
 function onClick($element) {
 	return new Promise(function (resolve) {
 		$element.on('click', async (e) => {
-
 			resolve(e);
 		});
 	});
@@ -44,7 +41,7 @@ async function main($DOM, configuration, pause, pause_replacements) {
 		x: $DOM.width(),
 		y: $DOM.height()
 	}
-	let rack = new ShelfRack(configuration.layout, configuration.item_classes, configuration.product_info, rack_dimensions);
+	let rack = new ShelfRack(configuration.layout, configuration.item_classes, rack_dimensions);
 	console.log(rack);
 	let click_data = [];
 
@@ -53,7 +50,20 @@ async function main($DOM, configuration, pause, pause_replacements) {
 		$DOM.fadeOut(configuration.timer.reset_duration / 2);
 		await showScreen(pause, pause_replacements);
 
-		await Promise.all([reset_timer ? timer.resetAsync() : async () => { }, $DOM.fadeIn(configuration.timer.reset_duration).promise()]);
+		await Promise.all(
+			[
+				reset_timer ? timer.resetAsync() : async () => { },
+				$DOM.fadeIn(configuration.timer.reset_duration).promise(),
+				reset_timer ? (async () => {
+					if (configuration.repeat_behavior.triggers.timeout === true) {
+						if (configuration.repeat_behavior.rearrange === true) {
+							$stimuli.empty();
+							await rack.generateBoundedProducts();
+							$stimuli.append(await $newLayout($stimuli, rack, configuration.mouseover_classes));
+						}
+					}
+				})() : async () => { }
+			]);
 
 		reset_timer ? timer.start() : timer.unpause();
 	}
@@ -73,28 +83,23 @@ async function main($DOM, configuration, pause, pause_replacements) {
 	trial_count.setTotal(configuration.iterations);
 	trial_count.update(0);
 	// MAIN LOOP
-	for (let i = 0, repeat = false; i < configuration.iterations; repeat ? i : ++i, repeat = false) {
+	for (let i = 0, repeat = 0, requested_product; i < configuration.iterations; repeat === 0 ? ++i : i) {
 
 		timer.timeout(async () => {
-			pause_experiment(true);
-			if (configuration.repeat_behavior.triggers.timeout === true) {
-				if (configuration.repeat_behavior.rearrange === true) {
-					$stimuli.empty();
-					$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack, configuration.mouseover_classes));
-					await rack.generateBoundedProducts();
-				}
-			}
+			await pause_experiment(true);
 		});
 
 		await rack.generateBoundedProducts();
 
-		$stimuli.append(await $newLayout($stimuli, configuration.product_info.scale, rack, configuration.mouseover_classes));
+		$stimuli.append(await $newLayout($stimuli, rack, configuration.mouseover_classes));
 		$stimuli.hide();
 
 		// abstract this into the config
-		//let requested_product = rack.product_classes[Math.floor(Math.random() * rack.product_classes.length)].name;
+		// let requested_product = rack.product_classes[Math.floor(Math.random() * rack.product_classes.length)].name;
 
-		let requested_product = $('.product').eq(Math.floor(Math.random() * $('.product').length)).attr('id');
+		if (repeat === 0 || configuration.repeat_behavior.new_target === true) {
+			requested_product = $('.product').eq(Math.floor(Math.random() * $('.product').length)).attr('id');
+		}
 
 		await showScreen(pause, Object.assign({}, pause_replacements, { message: ('Please click on the ' + requested_product) }));
 
@@ -140,13 +145,23 @@ async function main($DOM, configuration, pause, pause_replacements) {
 		click_data.push(click_info);
 
 
+		// triggers
 		if (configuration.repeat_behavior.triggers.wrong_answer) {
 			if (click_info.product_type.requested != click_info.product_type.clicked) {
-				repeat = true;
+				++repeat;
+			} else {
+				repeat = 0;
+				trial_count.update(i + 1);
 			}
 		}
 
-		if (!repeat) trial_count.update(i + 1);
+		if (configuration.repeat_behavior.continue_at > 0) {
+			if (repeat % configuration.repeat_behavior.continue_at === 0) {
+				repeat = 0;
+				trial_count.update(i + 1);
+			}
+		}
+
 		await timer.resetAsync();
 		$instruction.empty();
 		$stimuli.empty();
@@ -170,7 +185,9 @@ async function main($DOM, configuration, pause, pause_replacements) {
 export default async function (configuration, callback) {
 	// language
 	let lang = utils.buildLanguage(languages, configuration);
-	ldExtend(lang, configuration.language_options);
+	// ldExtend(lang, configuration.language_options);
+	lang = Object.assign({}, lang, configuration.language_options);
+	console.log(lang);
 
 	let $DOM = $(template).clone();
 	let $intro_screen = $DOM.find('.introduction').hide();

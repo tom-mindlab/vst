@@ -3,7 +3,7 @@
     "iterations": 6,
     "mouseover_classes": [],
     "timer": {
-        "duration": 80000,
+        "duration": 50000,
         "reset_duration": 300
     },
     "repeat_behavior": {
@@ -13,6 +13,21 @@
         },
         "rearrange": true,
         "continue_at": 2
+    },
+    "transition_behavior": {
+        "cover_between": true,
+        "cycle_time": 2000,
+        "duration": 200,
+        "transitions": {
+            "blur": {
+                "enabled": true,
+                "amount": "0.2rem"
+            },
+            "opacity": {
+                "enabled": true,
+                "amount": "80%"
+            }
+        }
     },
     "product_classes": [
         {
@@ -25,19 +40,32 @@
         },
         {
             "name": "Budweiser",
-            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Budweiser.png"
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Guinness%20Draught%20in%20a%20Can/GB/Competitor_Stim/multi_Budweiser.png",
+            "counts": {
+                "min": 5,
+                "max": 6
+            }
         },
         {
             "name": "New Amsterdam",
-            "path": "https://i.imgur.com/cWDQzwH.png"
+            "path": "https://i.imgur.com/cWDQzwH.png",
+            "counts": {
+                "max": 1
+            }
         },
         {
             "name": "Skyy",
-            "path": "https://i.imgur.com/U0hM1Pw.png"
+            "path": "https://i.imgur.com/U0hM1Pw.png",
+            "counts": {
+                "max": 5
+            }
         },
         {
             "name": "JustRol - All Butter",
-            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Big%20Fixture%20-%20Jus%20Rol/Stim/M4M/jusrol_m4m_allbutter.png"
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Big%20Fixture%20-%20Jus%20Rol/Stim/M4M/jusrol_m4m_allbutter.png",
+            "counts": {
+                "max": 5
+            }
         }
     ],
     "layout": [

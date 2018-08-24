@@ -3,8 +3,23 @@
     "iterations": 5,
     "mouseover_classes": [],
     "timer": {
-        "duration": 10000,
+        "duration": 100000,
         "reset_duration": 300
+    },
+    "transition_behavior": {
+        "cover_between": true,
+        "cycle_time": 2000,
+        "duration": 200,
+        "transitions": {
+            "blur": {
+                "enabled": false,
+                "amount": "0.2rem"
+            },
+            "opacity": {
+                "enabled": true,
+                "amount": "20%"
+            }
+        }
     },
     "repeat_behavior": {
         "triggers": {

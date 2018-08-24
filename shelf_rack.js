@@ -15,8 +15,9 @@ class Product extends Item {
 		super(product_class.name, product_class.path);
 		this.dimensions = product_class.dimensions;
 		this.resolved_dimensions = product_class.resolved_dimensions;
-		this.resolved_dimensions.x += 24;
+		this.resolved_dimensions.x;
 		this.counts = product_class.counts;
+		this.image = product_class.image;
 	}
 }
 
@@ -37,6 +38,7 @@ class Shelf extends Item {
 		super(shelf_class.name, shelf_class.path);
 		this.overflow_callback = overflow_callback;
 		this.bounds = shelf_class.bounds;
+		this.image = shelf_class.image;
 		this.item_groups = [];
 	}
 
@@ -44,13 +46,12 @@ class Shelf extends Item {
 
 export class ShelfRack {
 	constructor(layout_arr, item_classes, dimensions) {
+		this.layout_arr = layout_arr;
 		this.product_classes = item_classes.products;
 		this.shelf_classes = item_classes.shelves;
-		this.items = parseItems(layout_arr, [], this.shelf_classes);
-		if (this.items.length === 0) {
-			throw new Error('ShelfRack contains zero items');
-		}
 		this.dimensions = dimensions;
+		console.log('d:');
+		console.log(this.dimensions);
 	}
 
 	tallestProduct() {
@@ -96,33 +97,59 @@ export class ShelfRack {
 
 	async generateBoundedProducts() {
 
+		if (typeof this.items === "undefined") {
+			this.items = await parseItems(this.layout_arr, [], this.shelf_classes);
+		}
 		// if shelf dimensions haven't already been resolved, do this now
 		// clear the current products out here too
 		for (let shelf of this.items) {
+
 			if (typeof shelf.dimensions == "undefined") {
-				shelf.dimensions = await imageDimensions(shelf.path);
+				shelf.dimensions = await imageDimensions(shelf.image);
 				shelf.resolved_dimensions = {
-					x: shelf.dimensions.x,
+					x: this.dimensions.x,
 					y: this.dimensions.y / this.items.length
 				};
+				shelf.bounded_dimensions = {
+					x: shelf.resolved_dimensions.x,
+					y: shelf.resolved_dimensions.y - (((shelf.bounds.top * shelf.dimensions.y) / 100) + ((shelf.bounds.bottom * shelf.dimensions.y) / 100))
+				}
+				console.log(shelf.resolved_dimensions);
+				console.log(shelf.bounded_dimensions);
 			}
 
 			shelf.item_groups = [];
 		}
 
 		for (let product of this.product_classes) {
+			if (typeof product.image == "undefined") {
+				product.image = await loadImage(product.path);
+			}
 			if (typeof product.dimensions == "undefined") {
-				product.dimensions = await imageDimensions(product.path);
+				product.dimensions = await imageDimensions(product.image);
 			}
 		}
 		// if product dimensions haven't already been resolved, do this now
-		const scale_factor = this.tallestProduct().dimensions.y / this.items[0].resolved_dimensions.y; // how much we had to scale the tallest product to fit
+		const tallest_height = (() => {
+			let tallest_height = 0;
+			for (const product of this.product_classes) {
+				if (product.dimensions.y > tallest_height) {
+					tallest_height = product.dimensions.y;
+				}
+			}
+			return tallest_height;
+		})();
+		console.warn(this.items[0].bounded_dimensions.y);
+		const scale_factor = Math.min(this.items[0].bounded_dimensions.y, tallest_height) / Math.max(this.items[0].bounded_dimensions.y, tallest_height); // how much we had to scale the tallest product to fit
 		console.log(scale_factor);
 		for (let product of this.product_classes) {
 			product.resolved_dimensions = {
-				x: product.dimensions.x / scale_factor,
-				y: product.dimensions.y / scale_factor
+				x: product.dimensions.x * scale_factor,
+				y: product.dimensions.y * scale_factor
 			};
+			product.image.width = product.resolved_dimensions.x;
+			product.image.height = product.resolved_dimensions.y;
+			console.log(product);
 		}
 
 		let product_groups = [];
@@ -130,19 +157,15 @@ export class ShelfRack {
 			return group[0].resolved_dimensions.x;
 		}
 		const groupWidth = (group) => {
-			let cumulative_width = 0;
-			for (let product of group) {
-				cumulative_width += product.resolved_dimensions.x;
-			}
-			return cumulative_width;
+			return (group[0].image.width * group.length);
 		};
 
 		const remainingWidth = (shelf, used_width) => {
-			return shelf.resolved_dimensions.x - used_width;
+			return shelf.bounded_dimensions.x - used_width;
 		};
 
 		// generate mandatory products
-		for (let product of this.product_classes) {
+		for (const product of this.product_classes) {
 			// products with a minimum count are considered mandatory
 			// push these products within the range of min to max
 			// if max is undefined, only min will be added in this stage
@@ -165,17 +188,17 @@ export class ShelfRack {
 				target_shelves.push(i);
 			}
 			target_shelves = ldShuffle(target_shelves);
-			for (let shelf_index of target_shelves) {
+			for (const shelf_index of Object.values(target_shelves)) {
 
-				let used_width = (rack) => {
+				const used_width = (shelf) => {
 					let used_width = 0;
-					for (const p_group of rack.items[shelf_index].item_groups) {
+					for (const p_group of shelf.item_groups) {
 						used_width += groupWidth(p_group);
 					}
 					return used_width;
 				};
 
-				if (remainingWidth(this.items[shelf_index], used_width(this)) >= groupWidth(p_group)) {
+				if ((this.items[shelf_index].bounded_dimensions.x - used_width(this.items[shelf_index])) >= groupWidth(p_group)) {
 					this.items[shelf_index].item_groups.push(p_group);
 					return true;
 				}
@@ -183,7 +206,7 @@ export class ShelfRack {
 			return false;
 		}
 
-		for (let p_group of product_groups) {
+		for (const p_group of product_groups) {
 			if (tryRandomPushToShelves(p_group) === false) {
 				throw new Error("Shelf configuration cannot accomodate the minimum required products");
 			}
@@ -208,9 +231,9 @@ export class ShelfRack {
 
 		const groups_per_shelf = Math.ceil((product_groups.length + optional_product_groups.length) / this.items.length);
 		// raise the groups per shelf so groups are evenly distributed (bias towards upper shelves)
-		for (let shelf_index in this.items) {
-			if (groups_per_shelf - this.items[shelf_index].item_groups.length > 0) {
-				this.items[shelf_index].item_groups = this.items[shelf_index].item_groups.concat(optional_product_groups.splice(0, groups_per_shelf - this.items[shelf_index].item_groups.length));
+		for (const shelf of this.items) {
+			if (groups_per_shelf - shelf.item_groups.length > 0) {
+				shelf.item_groups = shelf.item_groups.concat(optional_product_groups.splice(0, groups_per_shelf - shelf.item_groups.length));
 				let cumulative_width = (groups) => {
 					let cumulative_width = 0;
 					for (const pg of groups) {
@@ -218,7 +241,10 @@ export class ShelfRack {
 					}
 					return cumulative_width;
 				};
-				if (cumulative_width(this.items[shelf_index].item_groups) > this.items[shelf_index].dimensions.x) {
+				console.log(`cumulative width of groups is ${cumulative_width(shelf.item_groups)}`);
+				console.log(`shelf width is ${shelf.bounded_dimensions.x}`)
+				if (cumulative_width(shelf.item_groups) > shelf.resolved_dimensions.x) {
+					console.warn('overflow');
 					const compareGroupProductWidth = (l, r) => {
 						if (l[0].dimensions.x < r[0].dimensions.x) {
 							return -1;
@@ -231,8 +257,8 @@ export class ShelfRack {
 
 					// remove groups in order of size so long as the width of all groups exceeds the shelves width
 					// a group may only be removed if it is an optional group
-					let groups_by_width = this.items[shelf_index].item_groups.sort(compareGroupProductWidth);
-					while (cumulative_width(groups_by_width) > this.items[shelf_index].dimensions.x) {
+					let groups_by_width = shelf.item_groups.sort(compareGroupProductWidth);
+					while (cumulative_width(groups_by_width) > shelf.bounded_dimensions.x) {
 						for (let [g_idex, group] of Object.entries(groups_by_width)) {
 							if (typeof group[0].counts == "undefined" || typeof group[0].counts.min == "undefined") {
 								groups_by_width.splice(g_idex, 1);
@@ -240,7 +266,7 @@ export class ShelfRack {
 							}
 						}
 					}
-					this.items[shelf_index].item_groups = groups_by_width;
+					shelf.item_groups = groups_by_width;
 				}
 			}
 		}
@@ -286,16 +312,17 @@ export class ShelfRack {
 }
 
 
-function parseItems(json_obj, item_arr, shelf_types_arr) {
+async function parseItems(json_obj, item_arr, shelf_types_arr) {
 	if (!Array.isArray(item_arr)) {
 		throw new TypeError('parseItems requires an array-type object to build against');
 	}
 	if (Array.isArray(json_obj)) {
 		for (let i = 0; i < json_obj.length; ++i) {
-			item_arr = parseItems(json_obj[i], item_arr, shelf_types_arr);
+			item_arr = await parseItems(json_obj[i], item_arr, shelf_types_arr);
 		}
 	} else {
 		const definition = Object.assign(json_obj, shelf_types_arr.find(item => item.name === json_obj.name));
+		definition.image = await loadImage(definition.path);
 		item_arr.push(new Shelf(definition, OVERFLOW_CALLBACKS.FAIL));
 	}
 	return item_arr;
@@ -309,24 +336,31 @@ function loadImage(path) {
 	})
 }
 
-async function imageDimensions(path) {
-	let img = await loadImage(path);
+function imageDimensions(img) {
 	return { x: img.width, y: img.height };
 }
 
-async function $asElement(e_item, tallest, rack) {
-	let $DOM = $('<div></div>');
-	$DOM.css('background-image', 'url(' + e_item.path + ')');
-	$DOM.css('background-position', 'center');
+async function $asElement(kv_item, tallest, rack) {
+	let index = kv_item[0];
+	let e_item = kv_item[1];
+	let $DOM;
 
 	if (e_item instanceof Product) {
+
+		$DOM = $(e_item.image).clone();
 		$DOM.addClass('product');
-		$DOM.attr('id', e_item.name);
+		$DOM.attr('data-product-type', e_item.name + '-' + index);
+		console.log($DOM);
 		const sf = (e_item.dimensions.y / tallest.dimensions.y);
-		$DOM.css('flex-basis', e_item.resolved_dimensions.x);
+		// //$DOM.css('max-width', );
+		// $DOM.css('display', 'flex');
+		// $DOM.css('flex-basis', e_item.resolved_dimensions.x * 1.05);
 		$DOM.css('height', sf * 100 + '%');
 	} else if (e_item instanceof Shelf) {
-		$DOM.css('height', rack.dimensions.y / rack.items.length);
+		$DOM = $('<div></div>');
+		$DOM.css('background-image', 'url(' + e_item.path + ')');
+		$DOM.css('background-position', 'center');
+		$DOM.css('height', 100 / rack.items.length + '%');
 		$DOM.css('padding-top', e_item.bounds.top / rack.items.length + '%');
 		$DOM.css('padding-bottom', e_item.bounds.bottom / rack.items.length + '%');
 		$DOM.addClass('shelf ' + e_item.name);
@@ -337,14 +371,18 @@ async function $asElement(e_item, tallest, rack) {
 	return $DOM;
 }
 
-async function $buildDOM(item, tallest, rack) {
-	let $DOM = await $asElement(item, tallest, rack);
-	if (Array.isArray(item.item_groups)) {
-		for (let p_group of item.item_groups) {
-			for (const product of p_group) {
-				$DOM.append(await $buildDOM(product, tallest, rack));
+async function $buildDOM(kv_item, tallest, rack) {
+	let $DOM = await $asElement(kv_item, tallest, rack);
+	if (Array.isArray(kv_item[1].item_groups)) {
+		const $product_container = $(`<div class="product-container"></div>`);
+		for (let p_group of kv_item[1].item_groups) {
+			for (const kv_product of Object.entries(p_group)) {
+				$product_container.append(await $buildDOM(kv_product, tallest, rack));
+				console.log(`pushed ${kv_product[0]} : ${kv_product[1].name}`);
 			}
 		}
+		console.log($product_container);
+		$DOM.append($product_container);
 	}
 	return $DOM;
 }
@@ -364,9 +402,8 @@ async function $buildDOM(item, tallest, rack) {
 //		returns a completed DOM in the <div class="rack"><div class="shelf ...">... style
 export async function $newLayout($container_DOM, rack, mouseover_classes) {
 	let $rack_DOM = $container_DOM;
-	for (let item of rack.items) {
-
-		$rack_DOM.append(await $buildDOM(item, await rack.tallestProduct(), rack));
+	for (let kv_shelf of Object.entries(rack.items)) {
+		$rack_DOM.append(await $buildDOM(kv_shelf, await rack.tallestProduct(), rack));
 	}
 
 	$rack_DOM.find('.product').each(function () {
@@ -379,7 +416,26 @@ export async function $newLayout($container_DOM, rack, mouseover_classes) {
 				}
 			);
 		}
+	});
 
+	$rack_DOM.find(`.shelf`).each(function (shelf_index) {
+		const used_width = (() => {
+			const flat_products = rack.items[shelf_index].item_groups.reduce((arr, v) => arr.concat(v), []);
+			let used_width = 0;
+			for (const p_group of rack.items[shelf_index].item_groups) {
+				for (let i = 0; i < p_group.length; ++i) {
+					used_width += p_group[i].image.width;
+				}
+			}
+			return used_width;
+		})();
+
+		console.log(`jq width: ${$(this).width()}`);
+		console.log(`used_width: ${used_width}`);
+
+		$(this).children(`.product - container`).css(`max - width`, used_width + 200);
+		// $(this).children(`.product - container`).first().css(`margin - left`, `${ Math.abs($(this).width() - used_width) / 2 }px`);
+		// $(this).children(`.product - container`).last().css(`margin - right`, `${ Math.abs($(this).width() - used_width) / 2 }px`);
 	});
 
 	return $rack_DOM;

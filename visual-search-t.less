@@ -5,15 +5,31 @@
 
 		position: absolute;
 
-		.instruction {
-			width: 96-2 * @panel-width;
+		.content {
+			position: absolute;
+			display: flex;
+			flex-direction: column;
+			width: 64vw;
+			height: 50vw;
+
 			left: 2 + @panel-width;
 			top: 0;
+
+			
+		}
+
+		.instruction {
+			position: initial;
+			width: 100%;
+			
 			text-align: center;
 			margin-top: 1em;
 			font-size: 2em;
 
+			height: auto;
 			color: @primary;
+
+			display: block;
 		}
 
 		.title {
@@ -37,16 +53,16 @@
 		}
 
 		.stimuli {
-			position: absolute;
+			//position: absolute;
 
 			//width: 96-2 * @panel-width;
-			left: 2 + @panel-width;
+			//left: 2 + @panel-width;
 
 			@stimuli_container_height: 36vw;
 			height: @stimuli_container_height;
-			width: 64vw;
-			height: 36vw;
-			top: 15%;
+			width: 100%;
+			//height: 80%;
+			//top: 15%;
 
 
 			z-index: 5;
@@ -55,38 +71,61 @@
 			display: flex;
 			flex-direction: column;
 
+			.loading-stimuli {
+				width: 100%;
+				text-align: center;
+			}
+
 			.shelf {
 				width: 100%;
 				background-size: 100% 100%;
 				background-repeat: repeat-x;
 				background-position: center bottom;
-				display: flex;
-				align-items: baseline;
-				justify-content: center;
 
-				.product {
-					background-repeat: no-repeat;
-					background-position: center 10%;
-					//height: 100%;
-					background-size: auto 100%;
-					margin-top: auto;
-					margin-bottom: 0;
+				
+
+				.product-container {
+					height: 100%;
+					display: flex;
+					justify-content: center;
+
+					.product {
+
+						margin-top: auto;
+						margin-bottom: 0;
+						margin-left: 1px;
+						margin-right: 1px;
+
+						
+					}
+
+					.correct {
+						filter: url('#test');
+					}
+
+					.click-overlay {
+						position: absolute;
+						top: 0;
+						left: 0;
+						height: 100%;
+						width: 100%;
+						filter: opacity(50%);
+					}
+
+					.highlight {
+						transition: filter 25ms;
+						filter: brightness(1.2);
+					}
+
+					.clicked {
+						filter: brightness(1.2);
+					}
+
 				}
 
-				.highlight {
-					filter: brightness(1.2);
-				}
+				
 
-				.clicked {
-					filter: brightness(1.2);
-				}
-
-				.correct {
-					background-color: green;
-				}
-				.incorrect {
-					background-color: red;
-				}
+				
 			}
 		}
 

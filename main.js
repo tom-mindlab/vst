@@ -164,7 +164,7 @@ async function main($DOM, configuration, pause, pause_replacements) {
 
 
 		transition_list.stop();
-		transition_list.doTransitions($('img[data-product-type="' + requested_product + '"]'), {}, false);
+		transition_list.doTransitions();
 
 
 
@@ -177,6 +177,7 @@ async function main($DOM, configuration, pause, pause_replacements) {
 			click_info.product_type.clicked = `none`;
 		}
 		click_info.product_type.clicked = (transition_list.enabled_count !== 0) ? click_info.product_type.clicked : click_info.product_type.clicked.split('-')[0];
+
 
 		timer.stop();
 		click_info.time_taken = timer.value();

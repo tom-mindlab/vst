@@ -6,21 +6,6 @@
         "duration": 100000,
         "reset_duration": 300
     },
-    "transition_behavior": {
-        "cover_between": true,
-        "cycle_time": 2000,
-        "duration": 200,
-        "transitions": {
-            "blur": {
-                "enabled": false,
-                "amount": "0.2rem"
-            },
-            "opacity": {
-                "enabled": true,
-                "amount": "20%"
-            }
-        }
-    },
     "repeat_behavior": {
         "triggers": {
             "wrong_answer": true,

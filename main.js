@@ -164,7 +164,7 @@ async function main($DOM, configuration, pause, pause_replacements) {
 
 
 		transition_list.stop();
-		transition_list.doTransitions($('img[data-product-type="' + requested_product + '"]'), configuration.transition_behavior.transitions, false);
+		transition_list.doTransitions($('img[data-product-type="' + requested_product + '"]'), {}, false);
 
 
 
@@ -225,8 +225,6 @@ export default async function (configuration, callback) {
 	// ldExtend(lang, configuration.language_options);
 	lang = Object.assign({}, lang, configuration.language_options);
 	console.log(lang);
-
-	$('head').append('<style>.product { transition: filter ' + configuration.transition_behavior.duration + 'ms linear; }</style>')
 
 	let $DOM = $(template).clone();
 	let $intro_screen = $DOM.find('.introduction').hide();

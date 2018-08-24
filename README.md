@@ -1,4 +1,4 @@
-# Visual Search (Alpha)
+# Visual Search (1.0)
 
 A specialised search component which generates shelf layouts on the fly given minimal input.
 - No need to pre-generate shelves
@@ -16,8 +16,12 @@ A specialised search component which generates shelf layouts on the fly given mi
   - `"rearrange"`: Whether a repeat will rearrange the shelf
   - `"new_target"`: Whether the user will be requested to find a different product on repeat
   - `"continue_at"`: The number of repeats before giving up and continuing
+- `"transition_behavior"`: The behavior of the transformations we apply to products if we are running an automatic standout. The test is considered a standout if at least one transition has its `enabled` property set to `true`
+  - `"cover_between"`: Whether the rack should be covered up during the transition
+  - `"cycle_time"`: The interval between application and removal of the transformation(s)
+  - `"duration"`: The time taken to transition from no-transform to full-transform
+  - `"transitions"`: The transitions which should be applied, all are disabled by default
 - `"item_classes"`: The types of object used in the test
-  - `"shelves"`: The types of shelf which will be used
   - `"products"`: The types of products that will be displayed
 - `"product_info"`: Global attributes about products
   - `"count"`: The number of products to display
@@ -34,6 +38,7 @@ A specialised search component which generates shelf layouts on the fly given mi
 - Display intro screen
 - Begin main loop:
   - Generate random product layout
+    - If a `transition` is defined, this means we are running an automatic standout, so we should request a *specific* product instead of a *class* of product
   - Await user click...
     - On timer duration timeout:
       - Display pause screen

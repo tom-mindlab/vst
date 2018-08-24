@@ -27,7 +27,10 @@
         },
         {
             "name": "New Amsterdam",
-            "path": "https://i.imgur.com/cWDQzwH.png"
+            "path": "https://i.imgur.com/cWDQzwH.png",
+            "counts": {
+                "max": 4
+            }
         },
         {
             "name": "Skyy",
@@ -75,21 +78,6 @@
                 "min": 2,
                 "max": 5
             }
-        },
-        {
-            "name": "JustRol - All Butter",
-            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Big%20Fixture%20-%20Jus%20Rol/Stim/M4M/jusrol_m4m_allbutter.png"
-        },
-        {
-            "name": "JustRol - Puffblock",
-            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Big%20Fixture%20-%20Jus%20Rol/Stim/M4M/jusrol_m4m_puffblock.png",
-            "counts": {
-                "min": 1
-            }
-        },
-        {
-            "name": "JustRol - Puffsheet",
-            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Big%20Fixture%20-%20Jus%20Rol/Stim/M4M/jusrol_m4m_puffsheet.png"
         }
     ],
     "layout": [

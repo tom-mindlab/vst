@@ -17,11 +17,6 @@
         "new_target": true,
         "continue_at": 0
     },
-    "transition_behavior": {
-        "cover_between": true,
-        "cycle_time": 500,
-        "duration": 100
-    },
     "product_classes": [
         {
             "name": "Stolichnaya",

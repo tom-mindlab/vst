@@ -63,36 +63,6 @@ export class ShelfRack {
 		return largest_product;
 	}
 
-	shortestProduct() {
-		let smallest_product = this.tallestProduct();
-		for (const product of this.product_classes) {
-			if (product.dimensions.y < smallest_product.dimensions.y) {
-				smallest_product = product;
-			}
-		}
-		return smallest_product;
-	}
-
-	widestProduct() {
-		let widest_product = this.product_classes[0];
-		for (const product of this.product_classes) {
-			if (product.resolved_dimensions.x > widest_product.resolved_dimensions.x) {
-				widest_product = product;
-			}
-		}
-		return widest_product;
-	}
-
-	slimmestProduct() {
-		let slimmest_product = this.widestProduct();
-		for (const product of this.product_classes) {
-			if (product.resolved_dimensions.x < slimmest_product.resolved_dimensions.x) {
-				slimmest_product = product;
-			}
-		}
-		return slimmest_product;
-	}
-
 	async generateBoundedProducts() {
 
 		if (typeof this.items === "undefined") {
@@ -100,7 +70,7 @@ export class ShelfRack {
 		}
 		// if shelf dimensions haven't already been resolved, do this now
 		// clear the current products out here too
-		for (let shelf of this.items) {
+		for (const shelf of this.items) {
 
 			if (typeof shelf.dimensions == "undefined") {
 				shelf.dimensions = await imageDimensions(shelf.image);
@@ -117,7 +87,7 @@ export class ShelfRack {
 			shelf.item_groups = [];
 		}
 
-		for (let product of this.product_classes) {
+		for (const product of this.product_classes) {
 			if (typeof product.image == "undefined") {
 				product.image = await loadImage(product.path);
 			}
@@ -136,7 +106,7 @@ export class ShelfRack {
 			return tallest_height;
 		})();
 		const scale_factor = Math.min(this.items[0].bounded_dimensions.y, tallest_height) / Math.max(this.items[0].bounded_dimensions.y, tallest_height); // how much we had to scale the tallest product to fit
-		for (let product of this.product_classes) {
+		for (const product of this.product_classes) {
 			product.resolved_dimensions = {
 				x: product.dimensions.x * scale_factor,
 				y: product.dimensions.y * scale_factor
@@ -145,7 +115,7 @@ export class ShelfRack {
 			product.image.height = product.resolved_dimensions.y;
 		}
 
-		let product_groups = [];
+		const product_groups = [];
 		const groupProductWidth = (group) => {
 			return group[0].resolved_dimensions.x;
 		}
@@ -167,7 +137,6 @@ export class ShelfRack {
 				if (max < product.counts.min) {
 					throw new Error("Minimum product count is higher than maximum");
 				}
-				const count = Math.floor(Math.random() * (max - product.counts.min + 1)) + product.counts.min; // inclusive random range from min to max
 				product_groups.push(Array(product.counts.min).fill(new Product(product)));
 			}
 		}
@@ -176,11 +145,13 @@ export class ShelfRack {
 		// do this by attempting to push to shelves in a random order
 		// if no shelf could accomodate the group, this is considered a fail case (not all requirements in the config could be met)
 		const tryRandomPushToShelves = (p_group) => {
-			let target_shelves = [];
-			for (let i = 0; i < this.items.length; ++i) {
-				target_shelves.push(i);
-			}
-			target_shelves = ldShuffle(target_shelves);
+			const target_shelves = (() => {
+				const target_shelves = [];
+				for (let i = 0; i < this.items.length; ++i) {
+					target_shelves.push(i);
+				}
+				return ldShuffle(target_shelves);
+			})();
 			for (const shelf_index of Object.values(target_shelves)) {
 
 				const used_width = (shelf) => {
@@ -211,9 +182,9 @@ export class ShelfRack {
 
 		// grab the list of product types we haven't used, make an array of groups size 1; upscale later
 
-		let optional_product_groups = (() => {
-			let out = [];
-			for (let product of this.product_classes) {
+		const optional_product_groups = (() => {
+			const out = [];
+			for (const product of this.product_classes) {
 				// check first for the counts field, if this exists, then check for the minimum count - products that fail both are optional and haven't been placed
 				if (typeof product.counts == "undefined" || typeof product.counts.min == "undefined") {
 					out.push([new Product(product)]);
@@ -227,7 +198,7 @@ export class ShelfRack {
 		for (const shelf of this.items) {
 			if (groups_per_shelf - shelf.item_groups.length > 0) {
 				shelf.item_groups = shelf.item_groups.concat(optional_product_groups.splice(0, groups_per_shelf - shelf.item_groups.length));
-				let cumulative_width = (groups) => {
+				const cumulative_width = (groups) => {
 					let cumulative_width = 0;
 					for (const pg of groups) {
 						cumulative_width += groupWidth(pg);
@@ -247,9 +218,9 @@ export class ShelfRack {
 
 					// remove groups in order of size so long as the width of all groups exceeds the shelves width
 					// a group may only be removed if it is an optional group
-					let groups_by_width = shelf.item_groups.sort(compareGroupProductWidth);
+					const groups_by_width = shelf.item_groups.sort(compareGroupProductWidth);
 					while (cumulative_width(groups_by_width) > shelf.bounded_dimensions.x) {
-						for (let [g_idex, group] of Object.entries(groups_by_width)) {
+						for (const [g_idex, group] of Object.entries(groups_by_width)) {
 							if (typeof group[0].counts == "undefined" || typeof group[0].counts.min == "undefined") {
 								groups_by_width.splice(g_idex, 1);
 								break;
@@ -261,8 +232,8 @@ export class ShelfRack {
 			}
 		}
 
-		for (let shelf of this.items) {
-			let used_width = (() => {
+		for (const shelf of this.items) {
+			const used_width = (() => {
 				let used_width = 0;
 				for (const p_group of shelf.item_groups) {
 					used_width += groupWidth(p_group);
@@ -271,11 +242,10 @@ export class ShelfRack {
 			})();
 
 			const upscalableGroups = () => {
-				let upscalable_groups = [];
+				const upscalable_groups = [];
 				for (const p_group of shelf.item_groups) {
 					if (groupProductWidth(p_group) < remainingWidth(shelf, used_width)) {
 						if (typeof p_group[0].counts != "undefined" && typeof p_group[0].counts.max != "undefined") {
-
 							if (p_group.length < p_group[0].counts.max) {
 								upscalable_groups.push(p_group);
 							}
@@ -320,7 +290,7 @@ async function parseItems(json_obj, item_arr, shelf_types_arr) {
 
 function loadImage(path) {
 	return new Promise(res => {
-		let img = new Image();
+		const img = new Image();
 		img.addEventListener('load', () => res(img));
 		img.src = path;
 	})
@@ -331,8 +301,8 @@ function imageDimensions(img) {
 }
 
 async function $asElement(kv_item, tallest, rack) {
-	let index = kv_item[0];
-	let e_item = kv_item[1];
+	const index = kv_item[0];
+	const e_item = kv_item[1];
 	let $DOM;
 
 	if (e_item instanceof Product) {
@@ -357,10 +327,10 @@ async function $asElement(kv_item, tallest, rack) {
 }
 
 async function $buildDOM(kv_item, tallest, rack) {
-	let $DOM = await $asElement(kv_item, tallest, rack);
+	const $DOM = await $asElement(kv_item, tallest, rack);
 	if (Array.isArray(kv_item[1].item_groups)) {
 		const $product_container = $(`<div class="product-container"></div>`);
-		for (let p_group of kv_item[1].item_groups) {
+		for (const p_group of kv_item[1].item_groups) {
 			for (const kv_product of Object.entries(p_group)) {
 				$product_container.append(await $buildDOM(kv_product, tallest, rack));
 			}
@@ -384,8 +354,8 @@ async function $buildDOM(kv_item, tallest, rack) {
 //		generates a DOM for a given shelf rack layout, using the input $DOM as a base
 //		returns a completed DOM in the <div class="rack"><div class="shelf ...">... style
 export async function $newLayout($container_DOM, rack, mouseover_classes) {
-	let $rack_DOM = $container_DOM;
-	for (let kv_shelf of Object.entries(rack.items)) {
+	const $rack_DOM = $container_DOM;
+	for (const kv_shelf of Object.entries(rack.items)) {
 		$rack_DOM.append(await $buildDOM(kv_shelf, await rack.tallestProduct(), rack));
 	}
 
@@ -403,7 +373,6 @@ export async function $newLayout($container_DOM, rack, mouseover_classes) {
 
 	$rack_DOM.find(`.shelf`).each(function (shelf_index) {
 		const used_width = (() => {
-			const flat_products = rack.items[shelf_index].item_groups.reduce((arr, v) => arr.concat(v), []);
 			let used_width = 0;
 			for (const p_group of rack.items[shelf_index].item_groups) {
 				for (let i = 0; i < p_group.length; ++i) {

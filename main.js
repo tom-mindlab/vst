@@ -1,3 +1,5 @@
+/* global $ */
+
 import './visual-search-t.less';
 import { screen, utils, controls } from 'wombat';
 import template from './visual-search-t.html';
@@ -7,7 +9,6 @@ import languages from './lang.json';
 import shelf_classes from './shelf_classes.json';
 import { ShelfRack } from './shelf_rack';
 import { $newLayout } from './shelf_rack';
-import { TransitionList, available_transitions } from './transitions';
 
 function onClick($element) {
 	return new Promise(function (resolve) {
@@ -44,20 +45,11 @@ async function main($DOM, configuration, pause, pause_replacements) {
 		x: $DOM.find(`.content`).width(),
 		y: $DOM.find('.stimuli').height()
 	}
-	let rack = new ShelfRack(configuration.layout, { shelves: shelf_classes.shelves, products: configuration.product_classes }, rack_dimensions);
-	console.log(rack);
-	let click_data = [];
-
-	const specific_product = (transition_list) => {
-		if (transition_list.enabled_count !== 0) {
-			return true;
-		} else {
-			return false;
-		}
-	}
+	const rack = new ShelfRack(configuration.layout, { shelves: shelf_classes.shelves, products: configuration.product_classes }, rack_dimensions);
+	const click_data = [];
 
 
-	let pause_experiment = async function (reset_timer, requested_product, transition_list) {
+	const pause_experiment = async function (reset_timer, requested_product) {
 		reset_timer ? timer.stop() : timer.pause();
 		$DOM.fadeOut(configuration.timer.reset_duration / 2);
 		await showScreen(pause, pause_replacements);
@@ -69,14 +61,9 @@ async function main($DOM, configuration, pause, pause_replacements) {
 				reset_timer ? (async () => {
 					if (configuration.repeat_behavior.triggers.timeout === true) {
 						if (configuration.repeat_behavior.rearrange === true) {
-							transition_list.stop();
 							$stimuli.empty();
 							await rack.generateBoundedProducts();
-							$stimuli.append(await $newLayout($stimuli, rack, configuration.mouseover_classes, specific_product(transition_list)));
-							transition_list.setTarget($('img[data-product-type^="' + requested_product.split('-')[0] + '"]').eq(Math.floor(Math.random() * $('img[data-product-type^="' + requested_product.split('-')[0] + '"]').length)));
-							transition_list.start();
-							await new Promise(res => setTimeout(res, configuration.transition_behavior.duration / 2));
-
+							$stimuli.append(await $newLayout($stimuli, rack, configuration.mouseover_classes, requested_product));
 						}
 					}
 				})() : async () => { }
@@ -85,19 +72,19 @@ async function main($DOM, configuration, pause, pause_replacements) {
 		reset_timer ? timer.start() : timer.unpause();
 	}
 
-	let timer = controls.timer($DOM.find('.timer'));
+	const timer = controls.timer($DOM.find('.timer'));
 	timer.duration(configuration.timer.duration);
 	timer.resetDuration(configuration.timer.reset_duration);
 
-	let pause_button = controls.pause($DOM.find('.pause-button'));
+	const pause_button = controls.pause($DOM.find('.pause-button'));
 	pause_button.click(async () => pause_experiment(false, undefined));
 
 
 	$DOM.show();
-	let $stimuli = $DOM.find('.stimuli');
-	let $instruction = $DOM.find('.instruction');
+	const $stimuli = $DOM.find('.stimuli');
+	const $instruction = $DOM.find('.instruction');
 
-	let trial_count = controls.progress($DOM.find('.progress'));
+	const trial_count = controls.progress($DOM.find('.progress'));
 	trial_count.setTotal(configuration.iterations);
 	trial_count.update(0);
 
@@ -112,49 +99,35 @@ async function main($DOM, configuration, pause, pause_replacements) {
 		$stimuli.append(await $newLayout($stimuli, rack, configuration.mouseover_classes));
 		$stimuli.hide();
 
-		// abstract this into the config
-		// let requested_product = rack.product_classes[Math.floor(Math.random() * rack.product_classes.length)].name;
-
 		if (repeat === 0 || configuration.repeat_behavior.new_target === true) {
 			requested_product = $('.product').eq(Math.floor(Math.random() * $('.product').length)).attr('data-product-type');
 		}
 
 		if (configuration.repeat_behavior.rearrange === true) {
-			console.log(requested_product.split('-')[0]);
 			requested_product = $('img[data-product-type^="' + requested_product.split('-')[0] + '"]').eq(Math.floor(Math.random() * $('img[data-product-type^="' + requested_product.split('-')[0] + '"]').length)).attr('data-product-type');
 		}
 
-		const transition_list = new TransitionList($DOM.find('.stimuli'), $('img[data-product-type="' + requested_product + '"]'), {}, 0, 0, false);
+		requested_product = requested_product.split('-')[0];
 
 
 		timer.timeout(async () => {
-			await pause_experiment(true, requested_product, transition_list);
+			await pause_experiment(true, requested_product, requested_product);
 		});
 
-		const desired_product = (product_class, transition_list) => {
-			const product_name = product_class.split(`-`)[0];
-			if (transition_list.enabled_count !== 0) {
-				return `changing product`;
-			} else {
-				return `${product_name}`;
-			}
-		}
-
-		const request_message = 'Please click on the ' + desired_product(requested_product, transition_list);
+		const request_message = `Please click on the ${requested_product}`;
 		await showScreen(pause, Object.assign({}, pause_replacements, { message: request_message }));
-		transition_list.start();
 
 		$instruction.text(request_message);
 		$stimuli.fadeIn(configuration.timer.reset_duration);
 		$instruction.fadeIn(configuration.timer.reset_duration);
 		timer.start();
-		let click_info = {
+		const click_info = {
 			m_pos: {
 				x: NaN,
 				y: NaN
 			},
 			product_type: {
-				requested: (transition_list.enabled_count !== 0) ? requested_product : requested_product.split('-')[0],
+				requested: requested_product,
 				clicked: null
 			},
 			time_taken: NaN
@@ -162,21 +135,13 @@ async function main($DOM, configuration, pause, pause_replacements) {
 
 		const event_info = await onClick($stimuli);
 
-
-		transition_list.stop();
-		transition_list.doTransitions($('img[data-product-type="' + requested_product + '"]'), {}, false);
-
-
-
-		let $target = $(event_info.target);
-		let target_class = $target.attr('class');
 		click_info.m_pos.x = event_info.pageX;
 		click_info.m_pos.y = event_info.pageY;
-		click_info.product_type.clicked = $target.attr('data-product-type');
+		click_info.product_type.clicked = $(event_info.target).attr('data-product-type');
 		if (typeof click_info.product_type.clicked === 'undefined') {
 			click_info.product_type.clicked = `none`;
 		}
-		click_info.product_type.clicked = (transition_list.enabled_count !== 0) ? click_info.product_type.clicked : click_info.product_type.clicked.split('-')[0];
+		click_info.product_type.clicked = click_info.product_type.clicked.split('-')[0];
 
 		timer.stop();
 		click_info.time_taken = timer.value();
@@ -221,17 +186,14 @@ async function main($DOM, configuration, pause, pause_replacements) {
 //			 the data produced by the user running through the element
 export default async function (configuration, callback) {
 	// language
-	let lang = utils.buildLanguage(languages, configuration);
-	// ldExtend(lang, configuration.language_options);
-	lang = Object.assign({}, lang, configuration.language_options);
-	console.log(lang);
+	const lang = Object.assign({}, utils.buildLanguage(languages, configuration), configuration.language_options);
 
-	let $DOM = $(template).clone();
-	let $intro_screen = $DOM.find('.introduction').hide();
-	let $pause_screen = $DOM.find('.pause-screen').hide();
-	let $main = $DOM.find('.main').hide();
+	const $DOM = $(template).clone();
+	const $intro_screen = $DOM.find('.introduction').hide();
+	const $pause_screen = $DOM.find('.pause-screen').hide();
+	const $main = $DOM.find('.main').hide();
 
-	let $title = $DOM.find('.title');
+	const $title = $DOM.find('.title');
 	$title.find('.header').text(lang.title.header);
 	$title.find('.message').text(lang.title.message);
 
@@ -239,8 +201,8 @@ export default async function (configuration, callback) {
 
 	await showScreen($intro_screen, lang.screens.intro);
 
-	let meta = null;
-	let data = await main($main, configuration, $pause_screen, lang.screens.pause);
+	const meta = null;
+	const data = await main($main, configuration, $pause_screen, lang.screens.pause);
 
 	screen.exit('fade', async function () {
 		callback(meta, data);

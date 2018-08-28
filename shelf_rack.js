@@ -50,8 +50,6 @@ export class ShelfRack {
 		this.product_classes = item_classes.products;
 		this.shelf_classes = item_classes.shelves;
 		this.dimensions = dimensions;
-		console.log('d:');
-		console.log(this.dimensions);
 	}
 
 	tallestProduct() {
@@ -114,8 +112,6 @@ export class ShelfRack {
 					x: shelf.resolved_dimensions.x,
 					y: shelf.resolved_dimensions.y - (((shelf.bounds.top * shelf.dimensions.y) / 100) + ((shelf.bounds.bottom * shelf.dimensions.y) / 100))
 				}
-				console.log(shelf.resolved_dimensions);
-				console.log(shelf.bounded_dimensions);
 			}
 
 			shelf.item_groups = [];
@@ -139,9 +135,7 @@ export class ShelfRack {
 			}
 			return tallest_height;
 		})();
-		console.warn(this.items[0].bounded_dimensions.y);
 		const scale_factor = Math.min(this.items[0].bounded_dimensions.y, tallest_height) / Math.max(this.items[0].bounded_dimensions.y, tallest_height); // how much we had to scale the tallest product to fit
-		console.log(scale_factor);
 		for (let product of this.product_classes) {
 			product.resolved_dimensions = {
 				x: product.dimensions.x * scale_factor,
@@ -149,7 +143,6 @@ export class ShelfRack {
 			};
 			product.image.width = product.resolved_dimensions.x;
 			product.image.height = product.resolved_dimensions.y;
-			console.log(product);
 		}
 
 		let product_groups = [];
@@ -241,10 +234,7 @@ export class ShelfRack {
 					}
 					return cumulative_width;
 				};
-				console.log(`cumulative width of groups is ${cumulative_width(shelf.item_groups)}`);
-				console.log(`shelf width is ${shelf.bounded_dimensions.x}`)
 				if (cumulative_width(shelf.item_groups) > shelf.resolved_dimensions.x) {
-					console.warn('overflow');
 					const compareGroupProductWidth = (l, r) => {
 						if (l[0].dimensions.x < r[0].dimensions.x) {
 							return -1;
@@ -346,15 +336,10 @@ async function $asElement(kv_item, tallest, rack) {
 	let $DOM;
 
 	if (e_item instanceof Product) {
-
 		$DOM = $(e_item.image).clone();
 		$DOM.addClass('product');
 		$DOM.attr('data-product-type', e_item.name + '-' + index);
-		console.log($DOM);
 		const sf = (e_item.dimensions.y / tallest.dimensions.y);
-		// //$DOM.css('max-width', );
-		// $DOM.css('display', 'flex');
-		// $DOM.css('flex-basis', e_item.resolved_dimensions.x * 1.05);
 		$DOM.css('height', sf * 100 + '%');
 	} else if (e_item instanceof Shelf) {
 		$DOM = $('<div></div>');
@@ -378,10 +363,8 @@ async function $buildDOM(kv_item, tallest, rack) {
 		for (let p_group of kv_item[1].item_groups) {
 			for (const kv_product of Object.entries(p_group)) {
 				$product_container.append(await $buildDOM(kv_product, tallest, rack));
-				console.log(`pushed ${kv_product[0]} : ${kv_product[1].name}`);
 			}
 		}
-		console.log($product_container);
 		$DOM.append($product_container);
 	}
 	return $DOM;
@@ -430,12 +413,7 @@ export async function $newLayout($container_DOM, rack, mouseover_classes) {
 			return used_width;
 		})();
 
-		console.log(`jq width: ${$(this).width()}`);
-		console.log(`used_width: ${used_width}`);
-
 		$(this).children(`.product - container`).css(`max - width`, used_width + 200);
-		// $(this).children(`.product - container`).first().css(`margin - left`, `${ Math.abs($(this).width() - used_width) / 2 }px`);
-		// $(this).children(`.product - container`).last().css(`margin - right`, `${ Math.abs($(this).width() - used_width) / 2 }px`);
 	});
 
 	return $rack_DOM;

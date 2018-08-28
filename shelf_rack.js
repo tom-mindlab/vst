@@ -1,3 +1,5 @@
+/* global $ */
+
 // cant be bothered to implement fisher-yates
 import ldShuffle from 'lodash/shuffle'
 import ldCloneDeep from 'lodash/cloneDeep'
@@ -233,7 +235,7 @@ export class ShelfRack {
 		}
 
 		for (const shelf of this.items) {
-			const used_width = (() => {
+			let used_width = (() => {
 				let used_width = 0;
 				for (const p_group of shelf.item_groups) {
 					used_width += groupWidth(p_group);

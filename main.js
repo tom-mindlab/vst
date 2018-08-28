@@ -1,3 +1,5 @@
+/* global $ */
+
 import './visual-search-t.less';
 import { screen, utils, controls } from 'wombat';
 import template from './visual-search-t.html';

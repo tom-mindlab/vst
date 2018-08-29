@@ -5,7 +5,7 @@
         "highlight"
     ],
     "timer": {
-        "duration": 80000,
+        "duration": 20000,
         "reset_duration": 300
     },
     "repeat_behavior": {
@@ -14,26 +14,9 @@
             "timeout": true
         },
         "rearrange": true,
-        "new_target": false,
         "continue_at": 2
     },
     "product_classes": [
-        {
-            "name": "Stolichnaya",
-            "path": "https://i.imgur.com/4iPEhpK.png",
-            "counts": {
-                "min": 5,
-                "max": 5
-            }
-        },
-        {
-            "name": "New Amsterdam",
-            "path": "https://i.imgur.com/cWDQzwH.png",
-            "counts": {
-                "min": 5,
-                "max": 5
-            }
-        },
         {
             "name": "Skyy",
             "path": "https://i.imgur.com/U0hM1Pw.png",
@@ -43,8 +26,8 @@
             }
         },
         {
-            "name": "Pinnacle",
-            "path": "https://i.imgur.com/GDOPvqL.png",
+            "name": "Grey Goose",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_GreyGooseCitron.png",
             "counts": {
                 "min": 5,
                 "max": 5
@@ -61,6 +44,22 @@
         {
             "name": "Skyy Citrus",
             "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_SkyyCitrus.png",
+            "counts": {
+                "min": 5,
+                "max": 5
+            }
+        },
+        {
+            "name": "Svedka Citrus",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_SvedkaCitrus.png",
+            "counts": {
+                "min": 5,
+                "max": 5
+            }
+        },
+        {
+            "name": "Crop Meyer Lemon",
+            "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_CropMeyerLemon.png",
             "counts": {
                 "min": 5,
                 "max": 5
@@ -82,8 +81,8 @@
                 "continue_button": "Continue"
             },
             "intro": {
-                "message": "Low 'max' values example",
-                "continue_button": "YEET"
+                "message": "Example visual search shelves",
+                "continue_button": "Begin"
             }
         },
         "title": {

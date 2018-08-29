@@ -65,7 +65,13 @@ export class ShelfRack {
 		return largest_product;
 	}
 
-	async generateBoundedProducts() {
+	async generateBoundedProducts(attempt_count) {
+		if (typeof attempt_count === `undefined`) {
+			attempt_count = 0;
+		}
+		if (attempt_count === 5) {
+			throw new Error("Shelf rack generation failed (retry count exceeded)");
+		}
 
 		if (typeof this.items === "undefined") {
 			this.items = await parseItems(this.layout_arr, [], this.shelf_classes);
@@ -122,7 +128,7 @@ export class ShelfRack {
 			return group[0].resolved_dimensions.x;
 		}
 		const groupWidth = (group) => {
-			return ((group[0].image.width + 4) * group.length);
+			return ((group[0].image.width + 1) * group.length);
 		};
 
 		const remainingWidth = (shelf, used_width) => {
@@ -132,8 +138,6 @@ export class ShelfRack {
 		// generate mandatory products
 		for (const product of this.product_classes) {
 			// products with a minimum count are considered mandatory
-			// push these products within the range of min to max
-			// if max is undefined, only min will be added in this stage
 			if (typeof product.counts != "undefined" && typeof product.counts.min != "undefined") {
 				const max = (typeof product.counts.max != "undefined") ? product.counts.max : product.counts.min;
 				if (max < product.counts.min) {
@@ -173,8 +177,15 @@ export class ShelfRack {
 		}
 
 		for (const p_group of product_groups) {
-			if (tryRandomPushToShelves(p_group) === false) {
-				throw new Error("Shelf configuration cannot accomodate the minimum required products");
+			let success = false;
+			for (let tries = 0; tries < 5; ++tries) {
+				if (tryRandomPushToShelves(p_group) === true) {
+					success = true;
+					break;
+				}
+			}
+			if (!success) {
+				return this.generateBoundedProducts(attempt_count + 1);
 			}
 		}
 

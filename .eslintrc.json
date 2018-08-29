@@ -53,7 +53,7 @@
             "error",
             "never"
         ],
-        "consistent-return": "error",
+        "consistent-return": "off",
         "consistent-this": "error",
         "curly": "error",
         "default-case": "error",
@@ -206,6 +206,7 @@
         "no-unmodified-loop-condition": "error",
         "no-unneeded-ternary": "error",
         "no-unused-expressions": "off",
+        "no-unused-vars": "warn",
         "no-use-before-define": "off",
         "no-useless-call": "error",
         "no-useless-computed-key": "error",

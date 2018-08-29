@@ -51,7 +51,7 @@
             "name": "Smiroff Citrus",
             "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_SmirnoffCitrus.png",
             "counts": {
-                "min": 2,
+                "min": 5,
                 "max": 5
             }
         },
@@ -59,7 +59,7 @@
             "name": "Skyy Citrus",
             "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_SkyyCitrus.png",
             "counts": {
-                "min": 2,
+                "min": 5,
                 "max": 5
             }
         },
@@ -67,7 +67,7 @@
             "name": "Svedka Citrus",
             "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_SvedkaCitrus.png",
             "counts": {
-                "min": 2,
+                "min": 5,
                 "max": 5
             }
         },
@@ -75,7 +75,7 @@
             "name": "Crop Meyer Lemon",
             "path": "https://toosuite-public-resources.s3-eu-west-1.amazonaws.com/Diageo%20-%20Ketel%20One/Bottles/Citreon/Flavoured_CropMeyerLemon.png",
             "counts": {
-                "min": 2,
+                "min": 5,
                 "max": 5
             }
         }

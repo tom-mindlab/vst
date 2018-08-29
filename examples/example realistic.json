@@ -1,5 +1,5 @@
 {
-    "wombat_component": "visual search flicker",
+    "wombat_component": "visual search t",
     "iterations": 10,
     "mouseover_classes": [
         "highlight"
@@ -19,7 +19,7 @@
     },
     "product_classes": [
         {
-            "name": "Stolichnaya",
+            "name": "Absolut",
             "path": "https://toosuite-public-resources.s3.amazonaws.com/Diageo%20-%20Smirnoff%20Impact%202/Resizes/Absolut.png",
             "counts": {
                 "min": 3,
@@ -27,7 +27,7 @@
             }
         },
         {
-            "name": "New Amsterdam",
+            "name": "Ketel One",
             "path": "https://toosuite-public-resources.s3.amazonaws.com/Diageo%20-%20Smirnoff%20Impact%202/Resizes/KetelOne.png",
             "counts": {
                 "min": 3,
@@ -35,7 +35,7 @@
             }
         },
         {
-            "name": "Skyy",
+            "name": "RU Standard",
             "path": "https://toosuite-public-resources.s3.amazonaws.com/Diageo%20-%20Smirnoff%20Impact%202/Resizes/RussianStandard.png",
             "counts": {
                 "min": 3,
@@ -43,7 +43,7 @@
             }
         },
         {
-            "name": "Pinnacle",
+            "name": "Smirnoff",
             "path": "https://toosuite-public-resources.s3.amazonaws.com/Diageo%20-%20Smirnoff%20Impact%202/Resizes/SmirnoffCURRENT.png",
             "counts": {
                 "min": 3,
@@ -90,13 +90,13 @@
                 "continue_button": "Continue"
             },
             "intro": {
-                "message": "Flicker Shelves",
+                "message": "VS",
                 "continue_button": "Start"
             }
         },
         "title": {
-            "header": "Flicker",
-            "message": "Click the flashing image"
+            "header": "VST",
+            "message": "Click the image"
         }
     }
 }

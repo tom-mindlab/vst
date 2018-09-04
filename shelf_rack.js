@@ -18,6 +18,7 @@ class Product extends Item {
 		this.dimensions = product_class.dimensions;
 		this.resolved_dimensions = product_class.resolved_dimensions;
 		this.resolved_dimensions.x;
+		this.key_competitor = product_class.key_competitor;
 		this.counts = product_class.counts;
 		this.image = product_class.image;
 	}
@@ -65,13 +66,7 @@ export class ShelfRack {
 		return largest_product;
 	}
 
-	async generateBoundedProducts(attempt_count) {
-		if (typeof attempt_count === `undefined`) {
-			attempt_count = 0;
-		}
-		if (attempt_count === 5) {
-			throw new Error("Shelf rack generation failed (retry count exceeded)");
-		}
+	async generateBoundedProducts() {
 
 		if (typeof this.items === "undefined") {
 			this.items = await parseItems(this.layout_arr, [], this.shelf_classes);
@@ -128,7 +123,7 @@ export class ShelfRack {
 			return group[0].resolved_dimensions.x;
 		}
 		const groupWidth = (group) => {
-			return ((group[0].image.width + 1) * group.length);
+			return ((group[0].image.width + 4) * group.length);
 		};
 
 		const remainingWidth = (shelf, used_width) => {
@@ -138,12 +133,31 @@ export class ShelfRack {
 		// generate mandatory products
 		for (const product of this.product_classes) {
 			// products with a minimum count are considered mandatory
-			if (typeof product.counts != "undefined" && typeof product.counts.min != "undefined") {
-				const max = (typeof product.counts.max != "undefined") ? product.counts.max : product.counts.min;
-				if (max < product.counts.min) {
+			// push these products within the range of min to max
+			// if max is undefined, only min will be added in this stage
+			if (typeof product.key_competitor != "undefined" && product.key_competitor === true) {
+				const min = (() => {
+					if (typeof product.counts != "undefined") {
+						if (typeof product.counts.min != "undefined") {
+							return product.counts.min;
+						}
+					}
+					return 1;
+				})();
+				const max = (() => {
+					if (typeof product.counts != "undefined") {
+						if (typeof product.counts.max != "undefined") {
+							return product.counts.max;
+						}
+					}
+					return min;
+				})();
+
+				if (max < min) {
 					throw new Error("Minimum product count is higher than maximum");
 				}
-				product_groups.push(Array(product.counts.min).fill(new Product(product)));
+
+				product_groups.push(Array(min).fill(new Product(product)));
 			}
 		}
 
@@ -177,15 +191,8 @@ export class ShelfRack {
 		}
 
 		for (const p_group of product_groups) {
-			let success = false;
-			for (let tries = 0; tries < 5; ++tries) {
-				if (tryRandomPushToShelves(p_group) === true) {
-					success = true;
-					break;
-				}
-			}
-			if (!success) {
-				return this.generateBoundedProducts(attempt_count + 1);
+			if (tryRandomPushToShelves(p_group) === false) {
+				throw new Error("Shelf configuration cannot accomodate the minimum required products");
 			}
 		}
 
@@ -199,12 +206,35 @@ export class ShelfRack {
 			const out = [];
 			for (const product of this.product_classes) {
 				// check first for the counts field, if this exists, then check for the minimum count - products that fail both are optional and haven't been placed
-				if (typeof product.counts == "undefined" || typeof product.counts.min == "undefined") {
-					out.push([new Product(product)]);
+				if (typeof product.key_competitor === "undefined" || product.key_competitor === false) {
+					const min = (() => {
+						if (typeof product.counts != "undefined") {
+							if (typeof product.counts.min != "undefined") {
+								return product.counts.min;
+							}
+						}
+						return 1;
+					})();
+					const max = (() => {
+						if (typeof product.counts != "undefined") {
+							if (typeof product.counts.max != "undefined") {
+								return product.counts.max;
+							}
+						}
+						return min;
+					})();
+
+					if (max < min) {
+						throw new Error("Minimum product count is higher than maximum");
+					}
+					out.push(Array(min).fill(new Product(product)));
 				}
 			}
 			return out;
 		})();
+
+
+
 
 		const groups_per_shelf = Math.ceil((product_groups.length + optional_product_groups.length) / this.items.length);
 		// raise the groups per shelf so groups are evenly distributed (bias towards upper shelves)
@@ -233,8 +263,8 @@ export class ShelfRack {
 					// a group may only be removed if it is an optional group
 					const groups_by_width = shelf.item_groups.sort(compareGroupProductWidth);
 					while (cumulative_width(groups_by_width) > shelf.bounded_dimensions.x) {
-						for (const [g_idex, group] of Object.entries(groups_by_width)) {
-							if (typeof group[0].counts == "undefined" || typeof group[0].counts.min == "undefined") {
+						for (const [g_idex, group] of groups_by_width.entries()) {
+							if (typeof group[0].key_competitor === "undefined" || group[0].key_competitor === false) {
 								groups_by_width.splice(g_idex, 1);
 								break;
 							}
@@ -302,9 +332,10 @@ async function parseItems(json_obj, item_arr, shelf_types_arr) {
 }
 
 function loadImage(path) {
-	return new Promise(res => {
+	return new Promise((res, rej) => {
 		const img = new Image();
 		img.addEventListener('load', () => res(img));
+		img.addEventListener('error', () => rej(new Error(`Failed to load image from ${path}`)));
 		img.src = path;
 	})
 }

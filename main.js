@@ -67,7 +67,8 @@ async function main($DOM, configuration, pause, pause_replacements) {
 						}
 					}
 				})() : async () => { }
-			]);
+			]
+		);
 
 		reset_timer ? timer.start() : timer.unpause();
 	}
